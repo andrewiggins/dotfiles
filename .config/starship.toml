@@ -1,0 +1,110 @@
+# Place in ~/.config/starship.toml
+# Get editor completions based on the config schema
+"$schema" = 'https://starship.rs/config-schema.json'
+
+# Combined with the output from `starship preset nerd-font-symbols`
+
+command_timeout = 5000
+
+# Inspired by posh-git
+# [{HEAD-name} S +A ~B -C !D | +E ~F -G !H W]
+# S=branch satus, ABCD=staged files, EFGH=working directory, W=overall directory status
+[git_status]
+format='\[[$ahead_behind$staged$renamed$deleted$modified$untracked$conflicted$stashed]($style)\] '
+conflicted='[ !](red)'
+ahead='[↑$count](green)' # or ⇡
+behind='[↓$count](red)' # or ⇣
+diverged='[$ahead_count⇕$behind_count](yellow)' # or ↕
+up_to_date='[≡](cyan)' # or =
+untracked='( ?$count)'
+stashed=' \$'
+modified='( ~$count)'
+staged='[( +$count)](green)'
+renamed='[( »$count)](green)'
+deleted='( ✘$count)'
+style='bold red'
+
+[aws]
+symbol = "  "
+
+[buf]
+symbol = " "
+
+[c]
+symbol = " "
+
+[conda]
+symbol = " "
+
+[dart]
+symbol = " "
+
+[directory]
+read_only = " "
+
+[docker_context]
+symbol = " "
+
+[elixir]
+symbol = " "
+
+[elm]
+symbol = " "
+
+[git_branch]
+symbol = " "
+
+[golang]
+symbol = " "
+
+[haskell]
+symbol = " "
+
+[hg_branch]
+symbol = " "
+
+[java]
+symbol = " "
+
+[julia]
+symbol = " "
+
+[lua]
+symbol = " "
+
+[memory_usage]
+symbol = " "
+
+[meson]
+symbol = "喝 "
+
+[nim]
+symbol = " "
+
+[nix_shell]
+symbol = " "
+
+[nodejs]
+symbol = " "
+
+[package]
+disabled = true
+symbol = " "
+
+[python]
+symbol = " "
+
+[rlang]
+symbol = "ﳒ "
+
+[ruby]
+symbol = " "
+
+[rust]
+symbol = " "
+
+[scala]
+symbol = " "
+
+[spack]
+symbol = "🅢 "

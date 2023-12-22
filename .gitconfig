@@ -1,0 +1,29 @@
+[push]
+	default = current
+[rerere]
+	enabled = true
+[alias]
+	unstage = reset HEAD --
+	co = checkout
+	br = branch
+	ci = commit
+	st = status -s
+	type = cat-file -t
+	dump = cat-file -p
+	sl = stash list
+	ss = stash save
+	sp = stash pop
+	sa = stash apply
+	last = log -1 HEAD
+	hist = log --pretty=format:\"%h %ad | %s%d [%an]\" --graph --date=short
+	origin = remote show origin
+	up = remote update origin --prune
+	amend = commit --amend --no-edit
+	cp = cherry-pick
+[init]
+	defaultBranch = main
+[filter "lfs"]
+	required = true
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
