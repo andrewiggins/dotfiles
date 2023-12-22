@@ -24,6 +24,9 @@ EOF
 # Install volta
 curl https://get.volta.sh | bash
 
+echo "CODESPACE_VSCODE_FOLDER=$CODESPACE_VSCODE_FOLDER"
+export
+
 # Do GH codespaces custom initialization
 if [ ! -z "$CODESPACE_VSCODE_FOLDER" ]
 then
