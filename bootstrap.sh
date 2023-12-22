@@ -28,7 +28,8 @@ echo "CODESPACE_VSCODE_FOLDER=$CODESPACE_VSCODE_FOLDER"
 export
 
 # Do GH codespaces custom initialization
-if [ ! -z "$CODESPACE_VSCODE_FOLDER" ]
+# if [ ! -z "$CODESPACE_VSCODE_FOLDER" ] # Unfortunately, this env var is available when this script runs
+if [ "$CODESPACES" -eq "true" ]
 then
   cp ./.config/starship.toml "$HOME/.config/starship.toml"
 
@@ -56,10 +57,10 @@ then
   git config --global alias.origin 'remote show origin'
   git config --global alias.up 'remote update origin --prune'
 
-
-  pushd $CODESPACE_VSCODE_FOLDER
-  $HOME/.volta/bin/node --version
-  popd
+  # Doesn't work cuz this env var isn't available to dotfiles installation
+  # pushd $CODESPACE_VSCODE_FOLDER
+  # $HOME/.volta/bin/node --version
+  # popd
 fi
 
 # Load .bashrc
