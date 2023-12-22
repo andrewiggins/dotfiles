@@ -23,8 +23,12 @@ EOF
 
 # Install volta
 curl https://get.volta.sh | bash
-# Initialize volta's node before running starship
-$HOME/.volta/bin/node --version
+# Initialize volta's node for GH Codespaces
+if [ ! -z "$CODESPACE_VSCODE_FOLDER" ]
+then
+  cd $CODESPACE_VSCODE_FOLDER
+  $HOME/.volta/bin/node --version
+fi
 
 # Load .bashrc
 source ~/.bashrc
