@@ -23,11 +23,40 @@ EOF
 
 # Install volta
 curl https://get.volta.sh | bash
-# Initialize volta's node for GH Codespaces
+
+# Do GH codespaces custom initialization
 if [ ! -z "$CODESPACE_VSCODE_FOLDER" ]
 then
-  cd $CODESPACE_VSCODE_FOLDER
+  cp ./.config/starship.toml "$HOME/.config/starship.toml"
+
+  # Set default branch name to "main"
+  git config --global init.defaultBranch main
+
+  # Git aliases
+  git config --global alias.unstage 'reset HEAD --'
+  git config --global alias.co checkout
+  git config --global alias.br branch
+  git config --global alias.ci commit
+  git config --global alias.st "status -s"
+  git config --global alias.amend 'commit --amend --no-edit'
+  git config --global alias.type "cat-file -t"
+  git config --global alias.dump "cat-file -p"
+  git config --global alias.sl "stash list"
+  git config --global alias.ss "stash save"
+  git config --global alias.sp "stash pop"
+  git config --global alias.sa "stash apply"
+  git config --global alias.cp cherry-pick
+  git config --global alias.last 'log -1 HEAD'
+  git config --global alias.hist 'log --pretty=format:"%h %ad | %s%d [%an]" --graph --date=short'
+
+  # Git remote origin aliases
+  git config --global alias.origin 'remote show origin'
+  git config --global alias.up 'remote update origin --prune'
+
+
+  pushd $CODESPACE_VSCODE_FOLDER
   $HOME/.volta/bin/node --version
+  popd
 fi
 
 # Load .bashrc

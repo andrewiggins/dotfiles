@@ -36,6 +36,9 @@ symbol = " "
 [conda]
 symbol = " "
 
+[container]
+disabled = true # For GH codespaces
+
 [dart]
 symbol = " "
 
@@ -98,6 +101,7 @@ symbol = " "
 symbol = "ﳒ "
 
 [ruby]
+disabled = true # For GH codespaces
 symbol = " "
 
 [rust]
