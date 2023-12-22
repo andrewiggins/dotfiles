@@ -29,7 +29,7 @@ export
 
 # Do GH codespaces custom initialization
 # if [ ! -z "$CODESPACE_VSCODE_FOLDER" ] # Unfortunately, this env var is available when this script runs
-if [ "$CODESPACES" -eq "true" ]
+if [ "$CODESPACES" == "true" ]
 then
   cp ./.config/starship.toml "$HOME/.config/starship.toml"
 
@@ -64,4 +64,4 @@ then
 fi
 
 # Load .bashrc
-source ~/.bashrc
+source "$HOME/.bashrc"
