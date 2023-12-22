@@ -7,7 +7,7 @@ cd "$(dirname "${BASH_SOURCE}")";
 git pull origin main;
 
 # Install starship prompt
-curl -sS https://starship.rs/install.sh | sh -s -- -b ~/.local/bin
+curl -sS https://starship.rs/install.sh | sh -s -- -y -b ~/.local/bin
 cat >> "$HOME/.bashrc" <<- 'EOF'
 
 	# Init starship prompt
@@ -23,6 +23,8 @@ EOF
 
 # Install volta
 curl https://get.volta.sh | bash
+# Initialize volta's node before running starship
+$HOME/.volta/bin/node --version
 
 # Load .bashrc
 source ~/.bashrc
