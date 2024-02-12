@@ -7,6 +7,7 @@ cd "$(dirname "${BASH_SOURCE}")";
 git pull origin main;
 
 # Install starship prompt
+mkdir -p ~/.local/bin
 curl -sS https://starship.rs/install.sh | sh -s -- -y -b ~/.local/bin
 cat >> "$HOME/.bashrc" <<- 'EOF'
 
