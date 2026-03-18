@@ -1,4 +1,3 @@
-# Place in ~/.config/starship.toml
 # Get editor completions based on the config schema
 "$schema" = 'https://starship.rs/config-schema.json'
 
@@ -25,90 +24,89 @@ deleted='( ✘$count)'
 style='bold red'
 
 [aws]
-symbol = "  "
+symbol = "  "
 
 [buf]
-symbol = " "
+symbol = " "
 
 [c]
-symbol = " "
+symbol = " "
 
 [conda]
-symbol = " "
+symbol = " "
 
 [container]
-disabled = true # For GH codespaces
+disabled = true
 
 [dart]
-symbol = " "
+symbol = " "
 
 [directory]
-read_only = " "
+read_only = " "
 
 [docker_context]
-symbol = " "
+symbol = " "
 
 [elixir]
-symbol = " "
+symbol = " "
 
 [elm]
-symbol = " "
+symbol = " "
 
 [git_branch]
-symbol = " "
+symbol = " "
 
 [golang]
-symbol = " "
+symbol = " "
 
 [haskell]
-symbol = " "
+symbol = " "
 
 [hg_branch]
-symbol = " "
+symbol = " "
 
 [java]
-symbol = " "
+symbol = " "
 
 [julia]
-symbol = " "
+symbol = " "
 
 [lua]
-symbol = " "
+symbol = " "
 
 [memory_usage]
-symbol = " "
+symbol = " "
 
 [meson]
-symbol = "喝 "
+symbol = "喝 "
 
 [nim]
-symbol = " "
+symbol = " "
 
 [nix_shell]
-symbol = " "
+symbol = " "
 
 [nodejs]
-symbol = " "
+symbol = " "
 
 [package]
 disabled = true
-symbol = " "
+symbol = " "
 
 [python]
-symbol = " "
+symbol = " "
 
 [rlang]
 symbol = "ﳒ "
 
 [ruby]
-disabled = true # For GH codespaces
-symbol = " "
+symbol = " "
 
 [rust]
-symbol = " "
+symbol = " "
 
 [scala]
-symbol = " "
+symbol = " "
 
 [spack]
 symbol = "🅢 "

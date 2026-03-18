@@ -1,0 +1,78 @@
+[user]
+	name = Andre Wiggins
+	email = {{ .email }}
+
+[init]
+	defaultBranch = main
+
+[push]
+	autoSetupRemote = true
+
+[rerere]
+	enabled = true
+
+[alias]
+	unstage = reset HEAD --
+	co = checkout
+	br = branch
+	ci = commit
+	st = status -s
+	amend = commit --amend --no-edit
+	type = cat-file -t
+	dump = cat-file -p
+	sl = stash list
+	ss = stash save
+	sp = stash pop
+	sa = stash apply
+	cp = cherry-pick
+	last = log -1 HEAD
+	hist = log --pretty=format:\"%h %ad | %s%d [%an]\" --graph --date=short
+	last-change = log --all -1 --
+	autofetch-branch = !BR=$(git rev-parse --abbrev-ref HEAD) && git remote set-branches --add origin $BR && git fetch origin $BR && git branch -u origin/$BR
+
+	# Git remote origin aliases
+	origin = remote show origin
+	up = remote update origin --prune
+
+{{- if ne .machine_type "codespaces" }}
+
+[core]
+	pager = delta
+
+[interactive]
+	diffFilter = delta --color-only
+
+[add.interactive]
+	useBuiltin = false
+
+[delta]
+	navigate = true
+	light = false
+	side-by-side = true
+
+[merge]
+	conflictstyle = diff3
+	tool = code
+
+[mergetool "code"]
+	cmd = code --wait --merge $REMOTE $LOCAL $BASE $MERGED
+
+[diff]
+	colorMoved = default
+{{- end }}
+
+{{- if and (eq .chezmoi.os "linux") (not (lookPath "code")) }}
+{{-   /* WSL without VS Code on PATH — use Windows Git Credential Manager */ }}
+
+[credential]
+	helper = /mnt/c/Program\\ Files/Git/mingw64/bin/git-credential-manager.exe
+{{- end }}
+
+[url "git@gist.github.com:"]
+	pushInsteadOf = https://gist.github.com/andrewiggins
+
+[filter "lfs"]
+	required = true
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process

@@ -1,0 +1,10 @@
+# Add python exec to path
+{{- if eq .chezmoi.arch "arm64" }}
+export PATH="/opt/homebrew/opt/python/libexec/bin:$PATH"
+{{- else }}
+export PATH="/usr/local/opt/python/libexec/bin:$PATH"
+{{- end }}
+
+# Volta
+export VOLTA_HOME="$HOME/.volta"
+export PATH="$VOLTA_HOME/bin:$PATH"
