@@ -29,19 +29,19 @@ INIT_TEMPLATES=(
 
 errors=0
 
+# Write chezmoi config to default location so execute-template picks it up.
+# This gives templates access to .email, .machine_type, .chezmoi.os, lookPath, etc.
+config_dir="${XDG_CONFIG_HOME:-$HOME/.config}/chezmoi"
+mkdir -p "$config_dir"
+
 for machine_type in personal work codespaces; do
   echo "=== machine_type=$machine_type ==="
 
-  # Create a temporary chezmoi config with the data values.
-  # This gives execute-template access to .email, .machine_type, AND
-  # runtime variables like .chezmoi.os and functions like lookPath.
-  tmp_config=$(mktemp)
-  cat > "$tmp_config" << TOML
+  cat > "$config_dir/chezmoi.toml" << TOML
 [data]
   email = "test@example.com"
   machine_type = "$machine_type"
 TOML
-  trap "rm -f '$tmp_config'" EXIT
 
   # Render and lint shell templates
   for tmpl in "${SHELL_TEMPLATES[@]}"; do
@@ -52,7 +52,6 @@ TOML
 
     echo "  Rendering $tmpl ..."
     rendered=$(chezmoi execute-template \
-      --config "$tmp_config" \
       < "$tmpl_path" 2>&1) || {
         echo "  ERROR: Failed to render $tmpl (machine_type=$machine_type)"
         errors=$((errors + 1))
@@ -80,7 +79,6 @@ TOML
 
     echo "  Rendering $tmpl ..."
     chezmoi execute-template \
-      --config "$tmp_config" \
       < "$tmpl_path" > /dev/null 2>&1 || {
         echo "  ERROR: Failed to render $tmpl (machine_type=$machine_type)"
         errors=$((errors + 1))
@@ -104,9 +102,10 @@ TOML
         errors=$((errors + 1))
       }
   done
-
-  rm -f "$tmp_config"
 done
+
+# Clean up
+rm -f "$config_dir/chezmoi.toml"
 
 if [ "$errors" -gt 0 ]; then
   echo ""

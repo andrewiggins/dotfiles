@@ -10,6 +10,7 @@ on:
 jobs:
   test:
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
@@ -22,6 +23,10 @@ jobs:
 
       - name: Add chezmoi to PATH
         run: echo "$HOME/bin" >> "$GITHUB_PATH"
+
+      - name: Install ShellCheck (macOS)
+        if: runner.os == 'macOS'
+        run: brew install shellcheck
 
       - name: ShellCheck install.sh
         run: shellcheck install.sh
