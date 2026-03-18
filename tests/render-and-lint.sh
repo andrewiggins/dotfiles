@@ -16,16 +16,32 @@ SHELL_TEMPLATES=(
 )
 
 # Non-shell templates — just verify they render without error
+# .chezmoi.toml.tmpl uses init-only functions (promptStringOnce, promptChoiceOnce)
+# and is tested separately with --init flag
 OTHER_TEMPLATES=(
   private_dot_gitconfig.tmpl
-  .chezmoi.toml.tmpl
   run_once_before_install-packages.ps1.tmpl
+)
+
+INIT_TEMPLATES=(
+  .chezmoi.toml.tmpl
 )
 
 errors=0
 
 for machine_type in personal work codespaces; do
   echo "=== machine_type=$machine_type ==="
+
+  # Create a temporary chezmoi config with the data values.
+  # This gives execute-template access to .email, .machine_type, AND
+  # runtime variables like .chezmoi.os and functions like lookPath.
+  tmp_config=$(mktemp)
+  cat > "$tmp_config" << TOML
+[data]
+  email = "test@example.com"
+  machine_type = "$machine_type"
+TOML
+  trap "rm -f '$tmp_config'" EXIT
 
   # Render and lint shell templates
   for tmpl in "${SHELL_TEMPLATES[@]}"; do
@@ -36,9 +52,7 @@ for machine_type in personal work codespaces; do
 
     echo "  Rendering $tmpl ..."
     rendered=$(chezmoi execute-template \
-      --init \
-      --promptChoice machine_type="$machine_type" \
-      --promptString email=test@example.com \
+      --config "$tmp_config" \
       < "$tmpl_path" 2>&1) || {
         echo "  ERROR: Failed to render $tmpl (machine_type=$machine_type)"
         errors=$((errors + 1))
@@ -66,6 +80,22 @@ for machine_type in personal work codespaces; do
 
     echo "  Rendering $tmpl ..."
     chezmoi execute-template \
+      --config "$tmp_config" \
+      < "$tmpl_path" > /dev/null 2>&1 || {
+        echo "  ERROR: Failed to render $tmpl (machine_type=$machine_type)"
+        errors=$((errors + 1))
+      }
+  done
+
+  # Render init-only templates (use --init with prompt flags)
+  for tmpl in "${INIT_TEMPLATES[@]}"; do
+    tmpl_path="$REPO_DIR/$tmpl"
+    if [ ! -f "$tmpl_path" ]; then
+      continue
+    fi
+
+    echo "  Rendering $tmpl ..."
+    chezmoi execute-template \
       --init \
       --promptChoice machine_type="$machine_type" \
       --promptString email=test@example.com \
@@ -74,6 +104,8 @@ for machine_type in personal work codespaces; do
         errors=$((errors + 1))
       }
   done
+
+  rm -f "$tmp_config"
 done
 
 if [ "$errors" -gt 0 ]; then

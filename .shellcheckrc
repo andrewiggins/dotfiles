@@ -2,3 +2,9 @@
 disable=SC1090
 # Source file not found (expected in CI where dependencies aren't installed)
 disable=SC1091
+# Variable appears unused — starship_precmd_user_func is read by starship
+disable=SC2034
+# Quote to prevent word splitting — intentional in terminal title setting
+disable=SC2046
+# Useless echo — used for pipe readability in terminal title setting
+disable=SC2005
