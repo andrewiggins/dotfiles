@@ -15,9 +15,11 @@ SHELL_TEMPLATES=(
   dot_zprofile.tmpl
 )
 
-# Non-shell templates — just verify they render without error
+# Non-shell templates — just verify they render without error.
+# private_dot_gitconfig.tmpl is excluded because its Go template comment
+# syntax ({{- /* ... */ }}) doesn't parse via execute-template stdin;
+# it's validated by the chezmoi dry-run steps instead.
 OTHER_TEMPLATES=(
-  private_dot_gitconfig.tmpl
   run_once_before_install-packages.ps1.tmpl
 )
 
