@@ -27,19 +27,32 @@ INIT_TEMPLATES=(
 )
 
 errors=0
+config_dir="${XDG_CONFIG_HOME:-$HOME/.config}/chezmoi"
+source_dir="${XDG_DATA_HOME:-$HOME/.local/share}/chezmoi"
 
 for machine_type in personal work codespaces; do
   echo "=== machine_type=$machine_type ==="
 
+  # Clean up any prior chezmoi state
+  rm -rf "$config_dir" "$source_dir" 2>/dev/null || true
+
+  # Write config BEFORE chezmoi init so promptStringOnce finds existing
+  # values and doesn't try to open a TTY.
+  mkdir -p "$config_dir"
+  cat > "$config_dir/chezmoi.toml" << TOML
+[data]
+  email = "test@example.com"
+  machine_type = "$machine_type"
+TOML
+
   # Initialize chezmoi with our repo as source to get full template context
-  # (.chezmoi.os, lookPath, etc.). --apply=false just creates the config.
-  chezmoi init "$REPO_DIR" \
-    --promptChoice machine_type="$machine_type" \
-    --promptString email=test@example.com 2>&1 || {
-      echo "  ERROR: chezmoi init failed for machine_type=$machine_type"
-      errors=$((errors + 1))
-      continue
-    }
+  # (.chezmoi.os, lookPath, etc.). No --apply so it just sets up source.
+  if ! init_output=$(chezmoi init "$REPO_DIR" 2>&1); then
+    echo "  ERROR: chezmoi init failed for machine_type=$machine_type"
+    echo "  $init_output"
+    errors=$((errors + 1))
+    continue
+  fi
 
   # Render and lint shell templates
   for tmpl in "${SHELL_TEMPLATES[@]}"; do
@@ -104,11 +117,10 @@ for machine_type in personal work codespaces; do
       errors=$((errors + 1))
     fi
   done
-
-  # Clean up chezmoi state between iterations
-  rm -rf "$(chezmoi source-path 2>/dev/null || true)" \
-    "${XDG_CONFIG_HOME:-$HOME/.config}/chezmoi" 2>/dev/null || true
 done
+
+# Final cleanup
+rm -rf "$config_dir" "$source_dir" 2>/dev/null || true
 
 if [ "$errors" -gt 0 ]; then
   echo ""

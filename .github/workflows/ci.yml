@@ -36,12 +36,19 @@ jobs:
 
       - name: Dry-run chezmoi init (codespaces)
         run: |
-          chezmoi init --apply --dry-run \
-            --promptChoice machine_type=codespaces \
-            --promptString email=test@example.com
+          config_dir="${XDG_CONFIG_HOME:-$HOME/.config}/chezmoi"
+          mkdir -p "$config_dir"
+          printf '[data]\n  email = "test@example.com"\n  machine_type = "codespaces"\n' > "$config_dir/chezmoi.toml"
+          chezmoi init --apply --dry-run
+
+      - name: Clean up chezmoi state
+        run: |
+          rm -rf "${XDG_CONFIG_HOME:-$HOME/.config}/chezmoi" \
+            "${XDG_DATA_HOME:-$HOME/.local/share}/chezmoi"
 
       - name: Dry-run chezmoi init (personal)
         run: |
-          chezmoi init --apply --dry-run \
-            --promptChoice machine_type=personal \
-            --promptString email=test@example.com
+          config_dir="${XDG_CONFIG_HOME:-$HOME/.config}/chezmoi"
+          mkdir -p "$config_dir"
+          printf '[data]\n  email = "test@example.com"\n  machine_type = "personal"\n' > "$config_dir/chezmoi.toml"
+          chezmoi init --apply --dry-run
