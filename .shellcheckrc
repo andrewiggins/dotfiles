@@ -1,0 +1,4 @@
+# Sourcing from variable paths (~/.extra, ~/.cargo/env)
+disable=SC1090
+# Source file not found (expected in CI where dependencies aren't installed)
+disable=SC1091

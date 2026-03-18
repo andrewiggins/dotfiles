@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  schedule:
+    # Weekly on Monday at 9 AM UTC
+    - cron: "0 9 * * 1"
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install chezmoi
+        run: sh -c "$(curl -fsLS get.chezmoi.io)" -- -b "$HOME/bin"
+
+      - name: Add chezmoi to PATH
+        run: echo "$HOME/bin" >> "$GITHUB_PATH"
+
+      - name: ShellCheck install.sh
+        run: shellcheck install.sh
+
+      - name: Render templates and lint shell scripts
+        run: bash tests/render-and-lint.sh
+
+      - name: Dry-run chezmoi init (codespaces)
+        run: |
+          chezmoi init --apply --dry-run \
+            --promptChoice machine_type=codespaces \
+            --promptString email=test@example.com
+
+      - name: Dry-run chezmoi init (personal)
+        run: |
+          chezmoi init --apply --dry-run \
+            --promptChoice machine_type=personal \
+            --promptString email=test@example.com

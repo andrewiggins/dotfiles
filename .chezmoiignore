@@ -3,6 +3,9 @@ README.md
 LICENSE
 CLAUDE.md
 install.sh
+.github/
+.shellcheckrc
+tests/
 
 {{- if ne .chezmoi.os "darwin" }}
 .zshrc
