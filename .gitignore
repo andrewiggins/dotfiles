@@ -1,3 +1,5 @@
+*.local.*
+
 # Compiled Python files
 *.pyc
 
