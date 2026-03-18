@@ -8,3 +8,7 @@ disable=SC2034
 disable=SC2046
 # Useless echo — used for pipe readability in terminal title setting
 disable=SC2005
+# Double quote to prevent globbing — info-level, upstream GitHub CLI install snippet
+disable=SC2086
+# Command appears unreachable — expected from chezmoi early-exit pattern (exit 0 on wrong OS)
+disable=SC2317
