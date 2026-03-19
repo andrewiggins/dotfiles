@@ -1,0 +1,7 @@
+- [ ] Install GitHub CLI
+- [ ] Install ripgrep
+- [ ] Add setup for Claude Code
+- [ ] Add setup for Codex
+- [ ] Add setup for pi-agent
+- [ ] Add setup for ffmpeg (if not already there)
+- [ ] Add setup for imagemagick
