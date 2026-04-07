@@ -1,12 +1,12 @@
-{{ if ne .chezmoi.os "windows" -}}
-# This script only runs on Windows
-exit 0
-{{ end -}}
+# Windows package install via winget + cargo + volta.
+# Honors $env:SKIP_PACKAGES = "1" for CI dry-runs.
 
-{{ if eq .machine_type "codespaces" -}}
-# No Windows packages needed in Codespaces
-exit 0
-{{ end -}}
+$ErrorActionPreference = "Stop"
+
+if ($env:SKIP_PACKAGES -eq "1") {
+	Write-Host "SKIP_PACKAGES=1, skipping windows package install"
+	exit 0
+}
 
 Write-Host "Installing packages via winget..."
 
@@ -46,6 +46,3 @@ Remove-Item -Recurse -Force $tempDir
 
 # Install npm globals
 npm install -g @anthropic-ai/claude-code
-
-# Ensure vim undo directory exists
-New-Item -ItemType Directory -Force -Path "$HOME\.vim\undodir" | Out-Null

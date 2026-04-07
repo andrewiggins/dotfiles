@@ -1,15 +1,16 @@
-#!/bin/bash
-{{ if ne .chezmoi.os "darwin" -}}
-# This script only runs on macOS
-exit 0
-{{ end -}}
-{{ if eq .machine_type "codespaces" -}}
-exit 0
-{{ end -}}
-set -e
+#!/usr/bin/env bash
+# macOS system defaults. Idempotent — re-running just rewrites the same values.
+# Honors SKIP_PACKAGES=1 to skip in CI (since macOS CI runners don't need real
+# Finder/Dock changes applied).
+set -euo pipefail
+
+if [ "${SKIP_PACKAGES:-0}" = "1" ]; then
+	echo "SKIP_PACKAGES=1, skipping macOS configuration"
+	exit 0
+fi
 
 # Close any open System Preferences panes
-osascript -e 'tell application "System Preferences" to quit'
+osascript -e 'tell application "System Preferences" to quit' || true
 
 ###############################################################################
 # General UI/UX                                                               #

@@ -18,37 +18,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install chezmoi
-        run: sh -c "$(curl -fsLS get.chezmoi.io)" -- -b "$HOME/bin"
-
-      - name: Add chezmoi to PATH
-        run: echo "$HOME/bin" >> "$GITHUB_PATH"
-
       - name: Install ShellCheck (macOS)
         if: runner.os == 'macOS'
         run: brew install shellcheck
 
-      - name: ShellCheck install.sh
-        run: shellcheck install.sh
-
-      - name: Render templates and lint shell scripts
-        run: bash tests/render-and-lint.sh
-
-      - name: Dry-run chezmoi init (codespaces)
+      - name: ShellCheck shell scripts
         run: |
-          config_dir="${XDG_CONFIG_HOME:-$HOME/.config}/chezmoi"
-          mkdir -p "$config_dir"
-          printf '[data]\n  email = "test@example.com"\n  machine_type = "codespaces"\n' > "$config_dir/chezmoi.toml"
-          chezmoi init --apply --dry-run
+          shellcheck install.sh
+          shellcheck scripts/*.sh
+          shellcheck tests/*.sh
 
-      - name: Clean up chezmoi state
-        run: |
-          rm -rf "${XDG_CONFIG_HOME:-$HOME/.config}/chezmoi" \
-            "${XDG_DATA_HOME:-$HOME/.local/share}/chezmoi"
-
-      - name: Dry-run chezmoi init (personal)
-        run: |
-          config_dir="${XDG_CONFIG_HOME:-$HOME/.config}/chezmoi"
-          mkdir -p "$config_dir"
-          printf '[data]\n  email = "test@example.com"\n  machine_type = "personal"\n' > "$config_dir/chezmoi.toml"
-          chezmoi init --apply --dry-run
+      - name: Dry-run install
+        run: bash tests/dry-run.sh
