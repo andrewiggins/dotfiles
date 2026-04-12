@@ -1,7 +1,7 @@
-- [ ] Install GitHub CLI
-- [ ] Install ripgrep
-- [ ] Add setup for Claude Code
+- [ ] Use docker for testing
+- [ ] Add setup for Claude Code using new native installer
 - [ ] Add setup for Codex
 - [ ] Add setup for pi-agent
 - [ ] Add setup for ffmpeg (if not already there)
 - [ ] Add setup for imagemagick
+- [ ] Ensure all AI agents are available in codespaces

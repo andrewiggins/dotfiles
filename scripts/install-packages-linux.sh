@@ -38,6 +38,7 @@ fi
 cargo install --locked bat git-delta starship
 
 # Install GitHub CLI
+# From https://github.com/cli/cli/blob/69585cc771a6f85e7628ee934836aab0f8249585/docs/install_linux.md
 if ! command -v gh >/dev/null 2>&1; then
 	(type -p wget >/dev/null || (sudo apt update && sudo apt install wget -y)) \
 		&& sudo mkdir -p -m 755 /etc/apt/keyrings \
@@ -54,3 +55,9 @@ fi
 if [ ! -d "$HOME/.volta" ]; then
 	curl https://get.volta.sh | bash
 fi
+
+# Install Node toolchain
+export VOLTA_HOME="$HOME/.volta"
+export PATH="$VOLTA_HOME/bin:$PATH"
+volta install node
+volta install pnpm

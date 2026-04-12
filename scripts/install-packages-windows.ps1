@@ -32,7 +32,7 @@ cargo install git-delta
 
 # Install Node toolchain
 volta install node
-volta install yarn
+volta install pnpm
 
 # Install Fira Code Nerd Font
 Write-Host "Installing Fira Code Nerd Font..."

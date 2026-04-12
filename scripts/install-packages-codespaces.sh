@@ -20,3 +20,9 @@ if [ ! -d "$HOME/.volta" ]; then
 	echo "Installing Volta..."
 	curl https://get.volta.sh | bash
 fi
+
+# Install Node toolchain
+export VOLTA_HOME="$HOME/.volta"
+export PATH="$VOLTA_HOME/bin:$PATH"
+volta install node
+volta install pnpm
