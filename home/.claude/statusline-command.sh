@@ -7,10 +7,17 @@ cwd=$(echo "$input" | jq -r '.workspace.current_dir // .cwd // ""')
 model=$(echo "$input" | jq -r '.model.display_name // ""')
 used=$(echo "$input" | jq -r '.context_window.used_percentage // empty')
 rate=$(echo "$input" | jq -r '.rate_limits.five_hour.used_percentage // empty')
+
+# Normalize Windows backslashes to forward slashes
+# shellcheck disable=SC1003
+cwd=$(echo "$cwd" | tr '\\' '/')
+# shellcheck disable=SC1003
+home=$(echo "$HOME" | tr '\\' '/')
+
 branch=$(git -C "$cwd" --no-optional-locks symbolic-ref --short HEAD 2>/dev/null)
 
 # Replace $HOME with ~, then keep last 3 components
-short_path=$(echo "$cwd" | sed "s|^$HOME|~|")
+short_path=$(echo "$cwd" | sed "s|^$home|~|")
 short_path=$(echo "$short_path" | awk -F/ '{
   if (NF <= 3) print $0
   else print "…/" $(NF-2) "/" $(NF-1) "/" $NF

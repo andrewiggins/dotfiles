@@ -24,6 +24,10 @@ run() {
 	echo "$1" | HOME="$fake" sh "$SCRIPT"
 }
 
+run_win() {
+	echo "$1" | HOME='C:\Users\testuser' sh "$SCRIPT"
+}
+
 fake="$(mktemp -d)"
 trap 'rm -rf "$fake"' EXIT
 
@@ -51,6 +55,25 @@ assert_eq "deep home path truncates after ~" \
 assert_eq "short absolute path unchanged" \
 	"/tmp | Opus 4" \
 	"$(run '{"workspace":{"current_dir":"/tmp"},"model":{"display_name":"Opus 4"}}')"
+
+# --- Windows paths ---
+
+assert_eq "windows backslash path truncates" \
+	"…/some/deep/path | Opus 4" \
+	"$(run_win '{"workspace":{"current_dir":"C:\\code\\projects\\some\\deep\\path"},"model":{"display_name":"Opus 4"}}')"
+
+assert_eq "windows home dir shows ~" \
+	"~ | Opus 4" \
+	"$(run_win '{"workspace":{"current_dir":"C:\\Users\\testuser"},"model":{"display_name":"Opus 4"}}')"
+
+# shellcheck disable=SC2088
+assert_eq "windows home subdir stays short" \
+	"~/projects/foo | Opus 4" \
+	"$(run_win '{"workspace":{"current_dir":"C:\\Users\\testuser\\projects\\foo"},"model":{"display_name":"Opus 4"}}')"
+
+assert_eq "windows deep home path truncates" \
+	"…/b/c/d | Opus 4" \
+	"$(run_win '{"workspace":{"current_dir":"C:\\Users\\testuser\\a\\b\\c\\d"},"model":{"display_name":"Opus 4"}}')"
 
 # --- Git branch ---
 
