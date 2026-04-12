@@ -40,6 +40,7 @@ git config --global alias.cp cherry-pick
 git config --global alias.last 'log -1 HEAD'
 git config --global alias.hist 'log --pretty=format:"%h %ad | %s%d [%an]" --graph --date=short'
 git config --global alias.last-change 'log --all -1 --'
+# shellcheck disable=SC2016
 git config --global alias.autofetch-branch '!BR=$(git rev-parse --abbrev-ref HEAD) && git remote set-branches --add origin $BR && git fetch origin $BR && git branch -u origin/$BR'
 git config --global alias.origin 'remote show origin'
 git config --global alias.up 'remote update origin --prune'
@@ -55,6 +56,7 @@ if [ "$IS_CODESPACES" != "1" ]; then
 	git config --global merge.conflictstyle diff3
 	git config --global diff.colorMoved default
 	git config --global merge.tool code
+	# shellcheck disable=SC2016
 	git config --global mergetool.code.cmd 'code --wait --merge $REMOTE $LOCAL $BASE $MERGED'
 fi
 
