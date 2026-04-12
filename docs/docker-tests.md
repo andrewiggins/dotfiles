@@ -102,30 +102,33 @@ Exit code = number of failures (0 on success).
 ### Usage
 
 ```
-bash tests/docker/run-docker-tests.sh [OPTIONS]
+bash tests/docker/run-docker-tests.sh [OPTIONS] [TEST...]
+
+Tests: full, codespaces
+  If none specified, runs all.
 
 Options:
   --no-cleanup    Keep containers alive after tests (for debugging)
-  --codespaces    Also run Codespaces-mode test
 ```
 
 ### Behavior
 
-1. **Build**: `docker build -f tests/docker/Dockerfile.ubuntu -t dotfiles-test:ubuntu .`
-2. **Run**: Execute the image. Name container `dotfiles-test-ubuntu-<timestamp>`.
-3. **Codespaces** (if `--codespaces`): Run again with `-e CODESPACES=true`.
+1. **Detect runtime**: Uses `podman` if available, falls back to `docker`.
+2. **Build**: `<runtime> build -f tests/docker/Dockerfile.ubuntu -t dotfiles-test:ubuntu .`
+3. **Run**: Execute the requested tests (`full`, `codespaces`, or both by default).
 4. **Summary**: Print pass/fail result. Exit non-zero if any test failed.
-5. **Cleanup** (default): `docker rm -f` all created containers via a `trap` on exit.
+5. **Cleanup** (default): `<runtime> rm -f` all created containers via a `trap` on exit.
 6. **--no-cleanup**: Skip container removal. Print debug instructions:
    ```
    Container kept: dotfiles-test-ubuntu-1712937600
-     Debug:   docker exec -it dotfiles-test-ubuntu-1712937600 bash
-     Cleanup: docker rm -f dotfiles-test-ubuntu-1712937600
+     Debug:   podman exec -it dotfiles-test-ubuntu-1712937600 bash
+     Cleanup: podman rm -f dotfiles-test-ubuntu-1712937600
    ```
 
 ### Design decisions
 
-- **No docker-compose**: Plain `docker build` + `docker run` has no extra dependencies and there's no inter-container networking to manage.
+- **Podman-first, Docker fallback**: The runner auto-detects the container runtime. Locally this uses Podman; CI on GitHub Actions uses Docker (pre-installed on runners).
+- **No docker-compose**: Plain `build` + `run` commands have no extra dependencies and there's no inter-container networking to manage.
 - **No bind mounts**: `COPY` in the Dockerfile makes images self-contained. Rebuilding is fast since only the `COPY` layer changes.
 
 ---
@@ -141,18 +144,8 @@ docker-test:
   steps:
     - uses: actions/checkout@v4
 
-    - name: Build Docker image
-      run: docker build -f tests/docker/Dockerfile.ubuntu -t dotfiles-test:ubuntu .
-
-    - name: Run full install test
-      run: docker run --name test-ubuntu dotfiles-test:ubuntu
-
-    - name: Run Codespaces install test
-      run: docker run --name test-codespaces -e CODESPACES=true dotfiles-test:ubuntu
-
-    - name: Cleanup
-      if: always()
-      run: docker rm -f test-ubuntu test-codespaces 2>/dev/null || true
+    - name: Run container tests
+      run: bash tests/docker/run-docker-tests.sh
 ```
 
 ### Notes
@@ -164,10 +157,11 @@ docker-test:
 
 ## Verification Checklist
 
-1. **Local**: `bash tests/docker/run-docker-tests.sh` — run the full install test
-2. **Local debug**: `bash tests/docker/run-docker-tests.sh --no-cleanup` then `docker exec -it <name> bash`
-3. **Codespaces path**: `bash tests/docker/run-docker-tests.sh --codespaces`
-4. **CI**: Push branch, verify `docker-test` job passes in GitHub Actions
+1. **All tests**: `bash tests/docker/run-docker-tests.sh`
+2. **Full install only**: `bash tests/docker/run-docker-tests.sh full`
+3. **Codespaces only**: `bash tests/docker/run-docker-tests.sh codespaces`
+4. **Debug mode**: `bash tests/docker/run-docker-tests.sh --no-cleanup full` then `podman exec -it <name> bash`
+5. **CI**: Push branch, verify `docker-test` job passes in GitHub Actions
 
 ---
 

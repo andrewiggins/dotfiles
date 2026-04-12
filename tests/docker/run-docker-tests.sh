@@ -1,18 +1,32 @@
 #!/usr/bin/env bash
-# Run dotfiles install inside Docker containers and verify the result.
+# Run dotfiles install inside containers and verify the result.
+# Uses podman if available, falls back to docker.
 #
 # Usage:
-#   bash tests/docker/run-docker-tests.sh [OPTIONS]
+#   bash tests/docker/run-docker-tests.sh [OPTIONS] [TEST...]
+#
+# Tests: full, codespaces
+#   If none specified, runs all.
 #
 # Options:
 #   --no-cleanup    Keep containers alive after tests (for debugging)
-#   --codespaces    Also run Codespaces-mode test
 set -euo pipefail
 
 REPO_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 cleanup=1
-run_codespaces=0
+tests=()
 containers=()
+
+# --- Detect container runtime ------------------------------------------------
+
+if command -v podman >/dev/null 2>&1; then
+	RUNTIME=podman
+elif command -v docker >/dev/null 2>&1; then
+	RUNTIME=docker
+else
+	echo "Error: neither podman nor docker found on PATH" >&2
+	exit 1
+fi
 
 # --- Parse arguments --------------------------------------------------------
 
@@ -22,17 +36,22 @@ while [[ $# -gt 0 ]]; do
 			cleanup=0
 			shift
 			;;
-		--codespaces)
-			run_codespaces=1
+		full|codespaces)
+			tests+=("$1")
 			shift
 			;;
 		*)
 			echo "Unknown option: $1" >&2
-			echo "Usage: $0 [--no-cleanup] [--codespaces]" >&2
+			echo "Usage: $0 [--no-cleanup] [full] [codespaces]" >&2
 			exit 1
 			;;
 	esac
 done
+
+# Default to all tests if none specified
+if [ ${#tests[@]} -eq 0 ]; then
+	tests=(full codespaces)
+fi
 
 # --- Cleanup trap -----------------------------------------------------------
 
@@ -42,14 +61,14 @@ do_cleanup() {
 		echo ""
 		echo "==> Cleaning up containers"
 		for name in "${containers[@]}"; do
-			docker rm -f "$name" >/dev/null 2>&1 && echo "    removed $name" || true
+			$RUNTIME rm -f "$name" >/dev/null 2>&1 && echo "    removed $name" || true
 		done
 	else
 		echo ""
 		echo "==> Containers kept (--no-cleanup). To debug or clean up:"
 		for name in "${containers[@]}"; do
-			echo "    docker exec -it $name bash"
-			echo "    docker rm -f $name"
+			echo "    $RUNTIME exec -it $name bash"
+			echo "    $RUNTIME rm -f $name"
 		done
 	fi
 }
@@ -58,8 +77,8 @@ trap do_cleanup EXIT
 # --- Build ------------------------------------------------------------------
 
 image="dotfiles-test:ubuntu"
-echo "==> Building Docker image: $image"
-docker build -f "$REPO_DIR/tests/docker/Dockerfile.ubuntu" -t "$image" "$REPO_DIR"
+echo "==> Building image: $image (using $RUNTIME)"
+$RUNTIME build -f "$REPO_DIR/tests/docker/Dockerfile.ubuntu" -t "$image" "$REPO_DIR"
 
 # --- Run tests --------------------------------------------------------------
 
@@ -72,27 +91,30 @@ run_test() {
 	local extra_args=("$@")
 
 	containers+=("$name")
-	((total++))
+	total=$((total + 1))
 
 	echo ""
 	echo "==> Running test: $name"
-	if docker run --name "$name" "${extra_args[@]}" "$image"; then
+	if $RUNTIME run --name "$name" "${extra_args[@]}" "$image"; then
 		echo "--- PASSED: $name"
 	else
 		echo "--- FAILED: $name"
-		((failures++))
+		failures=$((failures + 1))
 	fi
 }
 
 timestamp="$(date +%s)"
 
-# Full Linux install
-run_test "dotfiles-test-ubuntu-${timestamp}"
-
-# Codespaces install
-if [ "$run_codespaces" = "1" ]; then
-	run_test "dotfiles-test-codespaces-${timestamp}" -e CODESPACES=true
-fi
+for test in "${tests[@]}"; do
+	case "$test" in
+		full)
+			run_test "dotfiles-test-full-${timestamp}"
+			;;
+		codespaces)
+			run_test "dotfiles-test-codespaces-${timestamp}" -e CODESPACES=true
+			;;
+	esac
+done
 
 # --- Summary ----------------------------------------------------------------
 

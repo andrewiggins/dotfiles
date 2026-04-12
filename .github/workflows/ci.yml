@@ -42,15 +42,5 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build Docker image
-        run: docker build -f tests/docker/Dockerfile.ubuntu -t dotfiles-test:ubuntu .
-
-      - name: Run full install test
-        run: docker run --name test-ubuntu dotfiles-test:ubuntu
-
-      - name: Run Codespaces install test
-        run: docker run --name test-codespaces -e CODESPACES=true dotfiles-test:ubuntu
-
-      - name: Cleanup
-        if: always()
-        run: docker rm -f test-ubuntu test-codespaces 2>/dev/null || true
+      - name: Run container tests
+        run: bash tests/docker/run-docker-tests.sh
