@@ -24,7 +24,7 @@ if [ "${CODESPACES:-}" = "true" ]; then
 	is_codespaces=1
 fi
 is_wsl=0
-if grep -qi microsoft /proc/version 2>/dev/null; then
+if [ -n "${WSL_DISTRO_NAME:-}" ] || [ -n "${WSL_INTEROP:-}" ] || grep -qi microsoft /proc/version 2>/dev/null; then
 	is_wsl=1
 fi
 
@@ -76,7 +76,7 @@ elif [ "$os" = "Darwin" ]; then
 	SKIP_PACKAGES="$SKIP_PACKAGES" bash "$REPO_DIR/scripts/install-packages-macos.sh"
 	SKIP_PACKAGES="$SKIP_PACKAGES" bash "$REPO_DIR/scripts/configure-macos.sh"
 elif [ "$os" = "Linux" ]; then
-	SKIP_PACKAGES="$SKIP_PACKAGES" bash "$REPO_DIR/scripts/install-packages-linux.sh"
+	IS_WSL="$is_wsl" SKIP_PACKAGES="$SKIP_PACKAGES" bash "$REPO_DIR/scripts/install-packages-linux.sh"
 else
 	echo "    unknown OS '$os', skipping package install"
 fi

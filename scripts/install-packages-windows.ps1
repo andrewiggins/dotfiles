@@ -1,4 +1,4 @@
-# Windows package install via winget + cargo + volta.
+# Windows package install via winget + Podman Desktop + cargo + volta.
 # Honors $env:SKIP_PACKAGES = "1" for CI dry-runs.
 
 $ErrorActionPreference = "Stop"
@@ -15,6 +15,7 @@ winget install -e --id BurntSushi.ripgrep.MSVC
 winget install -e --id jqlang.jq
 winget install -e --id Microsoft.VisualStudioCode
 winget install -e --id Microsoft.PowerShell
+winget install -e --id RedHat.Podman-Desktop
 winget install -e --id vim.vim
 winget install -e --id 7zip.7zip
 winget install -e --id Python.Python

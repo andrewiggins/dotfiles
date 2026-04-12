@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# macOS package install via Homebrew + Volta.
+# macOS package install via Homebrew + Podman + Volta.
 # Honors SKIP_PACKAGES=1 for CI dry-runs.
 set -euo pipefail
 
@@ -27,6 +27,7 @@ brew install \
 	gnu-tar \
 	grep \
 	jq \
+	podman \
 	ripgrep \
 	rsync \
 	starship \

@@ -31,3 +31,6 @@ jobs:
 
       - name: Dry-run install
         run: bash tests/dry-run.sh
+
+      - name: Install mode detection
+        run: bash tests/install-modes.sh

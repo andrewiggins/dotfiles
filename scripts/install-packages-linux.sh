@@ -1,11 +1,16 @@
 #!/usr/bin/env bash
-# Linux/WSL package install: apt + rustup + cargo + gh + volta.
+# Linux/WSL package install: apt + podman + rustup + cargo + gh + volta.
 # Honors SKIP_PACKAGES=1 for CI dry-runs.
 set -euo pipefail
 
 if [ "${SKIP_PACKAGES:-0}" = "1" ]; then
 	echo "SKIP_PACKAGES=1, skipping linux package install"
 	exit 0
+fi
+
+is_wsl="${IS_WSL:-0}"
+if [ "$is_wsl" != "1" ] && { [ -n "${WSL_DISTRO_NAME:-}" ] || [ -n "${WSL_INTEROP:-}" ] || grep -qi microsoft /proc/version 2>/dev/null; }; then
+	is_wsl=1
 fi
 
 sudo apt update
@@ -18,6 +23,14 @@ sudo apt install -y \
 	git-gui \
 	jq \
 	vim
+
+# Install Podman on native Linux only. WSL uses the Windows host Podman
+# machine instead of running a second local container engine.
+if [ "$is_wsl" = "1" ]; then
+	echo "WSL detected, skipping Podman install. Use the Windows host Podman machine instead."
+else
+	sudo apt install -y podman
+fi
 
 # Install ripgrep
 RG_VERSION=14.1.1
