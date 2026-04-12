@@ -1,3 +1,7 @@
+if [ -d "$HOME/.local/bin" ]; then
+	export PATH="$HOME/.local/bin:$PATH"
+fi
+
 # Init starship prompt
 eval "$(starship init zsh)"
 

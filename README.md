@@ -9,7 +9,7 @@ Cross-platform dotfiles managed with a plain shell installer and symlinks. Works
 - **Vim** — persistent undo, incremental search, sensible defaults
 - **EditorConfig** — consistent formatting across editors
 - **Starship** — Nerd Font symbols, posh-git style git status
-- **Packages** — platform-specific package installation (apt, Homebrew, winget, cargo)
+- **Packages** — platform-specific package installation (apt, Homebrew, winget, upstream release/install scripts)
 - **Containers** — Podman on Linux, macOS, and Windows; skipped in GitHub Codespaces
 
 ## Install

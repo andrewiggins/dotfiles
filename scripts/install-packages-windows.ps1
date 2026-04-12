@@ -1,4 +1,4 @@
-# Windows package install via winget + Podman Desktop + cargo + volta.
+# Windows package install via winget + Podman Desktop + Volta + Rustup.
 # Honors $env:SKIP_PACKAGES = "1" for CI dry-runs.
 
 $ErrorActionPreference = "Stop"
@@ -12,10 +12,12 @@ Write-Host "Installing packages via winget..."
 
 winget install -e --id GitHub.cli
 winget install -e --id BurntSushi.ripgrep.MSVC
+winget install -e --id dandavison.delta
 winget install -e --id jqlang.jq
 winget install -e --id Microsoft.VisualStudioCode
 winget install -e --id Microsoft.PowerShell
 winget install -e --id RedHat.Podman-Desktop
+winget install -e --id sharkdp.bat
 winget install -e --id vim.vim
 winget install -e --id 7zip.7zip
 winget install -e --id Python.Python
@@ -29,12 +31,8 @@ Write-Host "Podman Desktop needs one manual first run to finish setup."
 Write-Host "Open Podman Desktop, complete onboarding, and create the default Podman machine before using the CLI."
 Write-Host ""
 
-# Reload environment so cargo/volta are available
+# Reload environment so newly installed tools like Volta are available.
 $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path", "User")
-
-# Install Rust packages
-cargo install bat
-cargo install git-delta
 
 # Install Node toolchain
 volta install node

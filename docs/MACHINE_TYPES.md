@@ -23,7 +23,7 @@ substantive differences:
 | `ripgrep`, `jq` (winget)         | Installed                       | Omitted (likely from internal channels)   |
 | `posh-git` PowerShell module     | —                               | Installed + added to profile              |
 | `vsts-npm-auth` (Azure DevOps)   | —                               | `npm i -g vsts-npm-auth`                  |
-| Cargo: `bat`, `git-delta`        | Installed                       | —                                         |
+| `bat`, `git-delta`               | Installed via Cargo             | —                                         |
 | Volta + Node toolchain           | Installed                       | —                                         |
 | FiraCode Nerd Font               | Installed via custom script     | —                                         |
 | `@anthropic-ai/claude-code` npm  | Installed                       | —                                         |
