@@ -1,7 +1,5 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
 ## Overview
 
 Cross-platform dotfiles repository deployed via a plain shell installer (`install.sh`) and PowerShell installer (`install.ps1`). Files in `home/` are symlinked into `$HOME`; per-OS and per-context differences are handled by runtime detection in shell, not by a templating engine.
@@ -57,7 +55,12 @@ dotfiles/
 
 ## Validation
 
+- CI runs on every push, every PR, and weekly (Monday 9 AM UTC) on `ubuntu-latest` and `macos-latest`. There is **no Windows CI** — `install.ps1` and `scripts/*-windows.ps1` must be tested manually.
 - `bash tests/dry-run.sh` — full integration test (dry-run + real run with `SKIP_PACKAGES=1` against a temp dir + idempotency check). Run by CI on ubuntu and macos.
 - `shellcheck install.sh scripts/*.sh tests/*.sh` — lint all shell scripts. Also run by CI.
 - `DRY_RUN=1 ./install.sh` — preview what would change on the current machine.
 - `bash -x install.sh` — debug a real run by tracing every command.
+
+## Related Repos
+
+- **`andrewiggins/setup`** — Older setup scripts repo; `configure-git.sh` pattern originated there. Available as an additional working directory.
