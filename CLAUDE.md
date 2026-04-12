@@ -1,57 +1,66 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
 ## Overview
 
-Cross-platform dotfiles repository managed with [chezmoi](https://www.chezmoi.io/). Supports Linux, macOS, Windows, and GitHub Codespaces from a single set of source files using Go templates for per-OS/per-context differences.
+Cross-platform dotfiles repository deployed via a plain shell installer (`install.sh`) and PowerShell installer (`install.ps1`). Files in `home/` are symlinked into `$HOME`; per-OS and per-context differences are handled by runtime detection in shell, not by a templating engine.
+
+Supports Linux, macOS, Windows, GitHub Codespaces, and WSL from a single set of source files.
 
 ## Setup
 
-Run `chezmoi init --apply andrewiggins` to install everything. For Codespaces, `install.sh` is detected automatically and runs chezmoi non-interactively.
+```sh
+git clone https://github.com/andrewiggins/dotfiles.git ~/dotfiles
+~/dotfiles/install.sh        # or install.ps1 on Windows
+```
 
-chezmoi prompts for two data values on first run:
-- `email` — git commit email (personal or work)
-- `machine_type` — `personal`, `work`, or `codespaces` (controls package installation scope)
+For Codespaces, `install.sh` is auto-discovered and runs without prompts. Codespaces is detected via the `$CODESPACES` env var.
 
 ## Architecture
 
-This repo **is** the chezmoi source directory. chezmoi copies files to the home directory, applying templates (`.tmpl` files) and respecting `.chezmoiignore` for OS-conditional exclusion.
-
-### Key files
-
-- **`.chezmoi.toml.tmpl`** — chezmoi config template; prompts for email and machine type
-- **`.chezmoiignore`** — excludes platform-specific files (e.g., `.zshrc` on non-macOS, `Documents/` on non-Windows)
-- **`private_dot_gitconfig.tmpl`** — unified git config with templated email, delta pager (skipped in Codespaces), WSL credential helper detection, all aliases
-- **`dot_bashrc.tmpl`** — bash config (Linux/WSL): Volta PATH, Starship init, window title hook
-- **`dot_zshrc.tmpl`** — zsh config (macOS only): Starship init, window title hook, `codei` alias
-- **`dot_zprofile.tmpl`** — zsh profile (macOS only): Homebrew Python PATH, Volta
-- **`Documents/PowerShell/Microsoft.PowerShell_profile.ps1`** — PowerShell profile (Windows only): Starship init
-- **`dot_vimrc`** — vim config: persistent undo, scrolloff, incremental search
-- **`dot_editorconfig`** — EditorConfig: tabs by default, 2-space for JSON/YAML/rc files
-- **`dot_config/starship.toml`** — Starship prompt config with Nerd Font symbols and posh-git style git status
-- **`run_once_before_install-packages.sh.tmpl`** — Linux/macOS package installation (lightweight for Codespaces, full for local)
-- **`run_once_before_install-packages.ps1.tmpl`** — Windows package installation via winget/cargo
-- **`run_once_after_configure-macos.sh.tmpl`** — macOS system defaults (Finder, Dock, keyboard, etc.)
-- **`install.sh`** — Codespaces/Dev Container bootstrap entry point
-
-### chezmoi naming conventions
-
-- `dot_` prefix → `.` in target (e.g., `dot_vimrc` → `.vimrc`)
-- `private_` prefix → file permissions 0600
-- `.tmpl` suffix → Go template, rendered with chezmoi data
-- `run_once_before_` / `run_once_after_` → idempotent scripts that run once (tracked by content hash)
+```
+dotfiles/
+├── install.sh                 # Unix/macOS/WSL/Codespaces entry point
+├── install.ps1                # Windows entry point
+├── home/                      # Symlinked into $HOME
+│   ├── .bashrc
+│   ├── .zshrc                 # macOS only (skipped on other platforms)
+│   ├── .zprofile              # macOS only
+│   ├── .vimrc
+│   ├── .editorconfig
+│   └── .config/starship.toml
+├── scripts/
+│   ├── configure-git.sh       # `git config --global` calls (Unix)
+│   ├── configure-git.ps1      # `git config --global` calls (Windows)
+│   ├── install-packages-codespaces.sh
+│   ├── install-packages-macos.sh
+│   ├── install-packages-linux.sh
+│   ├── install-packages-windows.ps1
+│   └── configure-macos.sh     # macOS system defaults (Finder, Dock, etc.)
+├── tests/
+│   └── dry-run.sh             # Integration test against a temp HOME
+└── docs/
+    ├── RESEARCH.md            # Background research from the chezmoi era
+    └── MACHINE_TYPES.md       # Historical work/personal split + how to revive
+```
 
 ## Key Patterns
 
-- **Templated differences**: OS/context differences are handled via `{{ if }}` blocks in `.tmpl` files, not separate files per platform
-- **`machine_type` gating**: Codespaces gets lightweight installs (starship + volta only); local machines get full package sets
-- **`~/.extra` pattern**: Both `.bashrc` and `.zshrc` source `~/.extra` if it exists, for private/machine-specific config not tracked in git
-- **Non-destructive**: chezmoi copies files (not symlinks), matching the previous approach
+- **Runtime detection, not templating**: `install.sh` reads `uname -s`, `$CODESPACES`, and `/proc/version` (for WSL) and passes the results as env vars to downstream scripts. There is no template engine in the loop.
+- **Idempotent git config**: `scripts/configure-git.sh` is a list of `git config --global …` calls. Re-running rewrites identical values; individual lines can be commented out per machine. Modeled on the older `andrewiggins/setup` repo's pattern.
+- **`~/.extra` escape hatch**: Both `.bashrc` and `.zshrc` source `~/.extra` if it exists, for private or machine-specific config not tracked in git.
+- **Symlinks, not copies**: Edits to files in `~/.bashrc` etc. flow back to the repo. On Windows this requires Developer Mode.
+- **`SKIP_PACKAGES=1`** is honored by every package install script, so CI and test runs can exercise the full installer without actually invoking `brew`/`apt`/`winget`.
+- **`DRY_RUN=1`** in `install.sh` previews actions without touching the filesystem.
+- **`HOME=…`** can be set to redirect both symlinking and `git config --global` into a throwaway directory — `tests/dry-run.sh` uses this for full isolation.
 
 ## Validation
 
-- `chezmoi diff` — preview what would change
-- `chezmoi apply -v` — apply with verbose output
-- `chezmoi doctor` — check chezmoi health
-- Test in Codespaces by setting this repo as your dotfiles repository
+- CI runs on every push, every PR, and weekly (Monday 9 AM UTC) on `ubuntu-latest` and `macos-latest`. There is **no Windows CI** — `install.ps1` and `scripts/*-windows.ps1` must be tested manually.
+- `bash tests/dry-run.sh` — full integration test (dry-run + real run with `SKIP_PACKAGES=1` against a temp dir + idempotency check). Run by CI on ubuntu and macos.
+- `shellcheck install.sh scripts/*.sh tests/*.sh` — lint all shell scripts. Also run by CI.
+- `DRY_RUN=1 ./install.sh` — preview what would change on the current machine.
+- `bash -x install.sh` — debug a real run by tracing every command.
+
+## Related Repos
+
+- **`andrewiggins/setup`** — Older setup scripts repo; `configure-git.sh` pattern originated there. Available as an additional working directory.

@@ -1,6 +1,6 @@
 # dotfiles
 
-Cross-platform dotfiles managed with [chezmoi](https://www.chezmoi.io/). Works on Linux, macOS, Windows, and GitHub Codespaces.
+Cross-platform dotfiles managed with a plain shell installer and symlinks. Works on Linux, macOS, Windows, and GitHub Codespaces.
 
 ## What's configured
 
@@ -15,40 +15,50 @@ Cross-platform dotfiles managed with [chezmoi](https://www.chezmoi.io/). Works o
 
 ### GitHub Codespaces
 
-Set this repo as your [dotfiles repository](https://docs.github.com/en/codespaces/customizing-your-codespace/personalizing-github-codespaces-for-your-account#dotfiles) in GitHub settings. `install.sh` runs automatically.
+Set this repo as your [dotfiles repository](https://docs.github.com/en/codespaces/customizing-your-codespace/personalizing-github-codespaces-for-your-account#dotfiles) in GitHub settings. `install.sh` runs automatically and detects Codespaces via the `$CODESPACES` env var to do a lightweight setup (just Starship + Volta).
 
-### macOS
-
-```sh
-sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply andrewiggins
-```
-
-### Linux / WSL
+### Linux / macOS / WSL
 
 ```sh
-sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply andrewiggins
+git clone https://github.com/andrewiggins/dotfiles.git ~/dotfiles
+~/dotfiles/install.sh
 ```
 
 ### Windows
 
+Requires Developer Mode (Settings → Privacy & Security → For developers) so symlinks can be created without elevation.
+
 ```powershell
-winget install twpayne.chezmoi
-chezmoi init --apply andrewiggins
+git clone https://github.com/andrewiggins/dotfiles.git $HOME\dotfiles
+& $HOME\dotfiles\install.ps1
 ```
+
+## How it works
+
+`install.sh` (and `install.ps1` on Windows):
+
+1. Detects environment (`uname -s`, `$CODESPACES`, WSL via `/proc/version`).
+2. Symlinks every file under `home/` into `$HOME`, skipping macOS-only files (`.zshrc`, `.zprofile`) on other platforms.
+3. Runs the appropriate `scripts/install-packages-*.sh` for the detected OS.
+4. Runs `scripts/configure-git.sh`, which is just a list of `git config --global …` calls — idempotent and individually editable per-machine.
+
+The whole thing is plain shell. To debug, run `bash -x install.sh`. To preview without changes, `DRY_RUN=1 ./install.sh`. To test against a throwaway home, `TARGET_HOME=/tmp/test ./install.sh`.
 
 ## Customization
 
-On first run, chezmoi prompts for:
-- **Email** — sets `user.email` in git config
-- **Machine type** — `personal`, `work`, or `codespaces` — controls which packages are installed
+For private or machine-specific shell config, create `~/.extra` — it's sourced by both `.bashrc` and `.zshrc` if present. Not tracked in git.
 
-For private/machine-specific shell config, create `~/.extra` — it's sourced by both `.bashrc` and `.zshrc` if present.
+To change git email per machine, either edit `scripts/configure-git.sh` directly or set `GIT_EMAIL=…` in your environment before running.
+
+For the historical `personal` vs `work` machine_type distinction (and how to reintroduce it if needed), see [`docs/MACHINE_TYPES.md`](docs/MACHINE_TYPES.md).
 
 ## Updating
 
 ```sh
-chezmoi update
+cd ~/dotfiles && git pull && ./install.sh
 ```
+
+Re-running the installer is safe — symlinks are recreated and `git config` calls overwrite identical values.
 
 ## License
 
