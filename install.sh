@@ -90,4 +90,12 @@ else
 		bash "$REPO_DIR/scripts/configure-git.sh"
 fi
 
+# --- 5. Configure Claude Code -----------------------------------------------
+echo "==> Configuring Claude Code"
+if [ "$DRY_RUN" = "1" ]; then
+	echo "    (dry-run, skipping Claude Code config)"
+else
+	bash "$REPO_DIR/scripts/configure-claude.sh"
+fi
+
 echo "==> Done."

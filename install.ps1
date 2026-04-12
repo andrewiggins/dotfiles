@@ -82,4 +82,12 @@ if ($DryRun) {
 	& (Join-Path $RepoDir "scripts\configure-git.ps1")
 }
 
+# --- 5. Configure Claude Code -----------------------------------------------
+Write-Host "==> Configuring Claude Code"
+if ($DryRun) {
+	Write-Host "    (dry-run, skipping Claude Code config)"
+} else {
+	& (Join-Path $RepoDir "scripts\configure-claude.ps1")
+}
+
 Write-Host "==> Done."
