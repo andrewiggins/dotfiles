@@ -88,9 +88,24 @@ assert_eq "context percentage shown" \
 	"~ | Opus 4 | ctx: 42%" \
 	"$(run '{"workspace":{"current_dir":"'"$fake"'"},"model":{"display_name":"Opus 4"},"context_window":{"used_percentage":42.3}}')"
 
-assert_eq "rate limit shown" \
+assert_eq "rate limit without resets_at falls back to 5h" \
 	"~ | Opus 4 | 5h: 15%" \
 	"$(run '{"workspace":{"current_dir":"'"$fake"'"},"model":{"display_name":"Opus 4"},"rate_limits":{"five_hour":{"used_percentage":15.1}}}')"
+
+resets_2h=$(($(date +%s) + 7200))
+assert_eq "rate limit shows countdown with resets_at" \
+	"~ | Opus 4 | 1h59m: 30%" \
+	"$(run '{"workspace":{"current_dir":"'"$fake"'"},"model":{"display_name":"Opus 4"},"rate_limits":{"five_hour":{"used_percentage":30,"resets_at":'"$resets_2h"'}}}')"
+
+resets_30m=$(($(date +%s) + 1800))
+assert_eq "rate limit shows minutes only when under 1h" \
+	"~ | Opus 4 | 29m: 50%" \
+	"$(run '{"workspace":{"current_dir":"'"$fake"'"},"model":{"display_name":"Opus 4"},"rate_limits":{"five_hour":{"used_percentage":50,"resets_at":'"$resets_30m"'}}}')"
+
+resets_past=$(($(date +%s) - 60))
+assert_eq "rate limit shows 5h when resets_at is in the past" \
+	"~ | Opus 4 | 5h: 5%" \
+	"$(run '{"workspace":{"current_dir":"'"$fake"'"},"model":{"display_name":"Opus 4"},"rate_limits":{"five_hour":{"used_percentage":5,"resets_at":'"$resets_past"'}}}')"
 
 assert_eq "all sections together" \
 	"~ | Opus 4 | ctx: 50% | 5h: 25%" \

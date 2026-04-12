@@ -7,6 +7,7 @@ cwd=$(echo "$input" | jq -r '.workspace.current_dir // .cwd // ""')
 model=$(echo "$input" | jq -r '.model.display_name // ""')
 used=$(echo "$input" | jq -r '.context_window.used_percentage // empty')
 rate=$(echo "$input" | jq -r '.rate_limits.five_hour.used_percentage // empty')
+resets_at=$(echo "$input" | jq -r '.rate_limits.five_hour.resets_at // empty')
 
 # Normalize Windows backslashes to forward slashes
 # shellcheck disable=SC1003
@@ -38,7 +39,21 @@ if [ -n "$used" ]; then
 fi
 
 if [ -n "$rate" ]; then
-  parts="$parts | 5h: $(printf '%.0f' "$rate")%"
+  rate_label="5h"
+  if [ -n "$resets_at" ]; then
+    now=$(date +%s)
+    remaining=$((${resets_at%.*} - now))
+    if [ "$remaining" -gt 0 ]; then
+      hours=$((remaining / 3600))
+      mins=$(( (remaining % 3600) / 60 ))
+      if [ "$hours" -gt 0 ]; then
+        rate_label="${hours}h${mins}m"
+      else
+        rate_label="${mins}m"
+      fi
+    fi
+  fi
+  parts="$parts | ${rate_label}: $(printf '%.0f' "$rate")%"
 fi
 
 printf "%s" "$parts"
