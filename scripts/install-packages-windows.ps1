@@ -24,6 +24,11 @@ winget install --id 9P7KNL5RWT25 --source msstore # Sysinternals Suite
 winget install -e --id Rustlang.Rustup
 winget install -e --id Starship.Starship
 
+Write-Host ""
+Write-Host "Podman Desktop needs one manual first run to finish setup."
+Write-Host "Open Podman Desktop, complete onboarding, and create the default Podman machine before using the CLI."
+Write-Host ""
+
 # Reload environment so cargo/volta are available
 $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path", "User")
 
