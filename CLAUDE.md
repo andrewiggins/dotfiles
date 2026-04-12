@@ -29,8 +29,8 @@ dotfiles/
 │   ├── .editorconfig
 │   └── .config/starship.toml
 ├── scripts/
-│   ├── configure-git.sh       # `git config --global` calls (Unix)
-│   ├── configure-git.ps1      # `git config --global` calls (Windows)
+│   ├── configure-git.sh       # `git config --global` calls (all platforms)
+│   ├── configure-claude.sh    # Claude Code settings.json setup (all platforms)
 │   ├── install-packages-codespaces.sh
 │   ├── install-packages-macos.sh
 │   ├── install-packages-linux.sh
@@ -47,6 +47,7 @@ dotfiles/
 
 - **Runtime detection, not templating**: `install.sh` reads `uname -s`, `$CODESPACES`, and `/proc/version` (for WSL) and passes the results as env vars to downstream scripts. There is no template engine in the loop.
 - **Idempotent git config**: `scripts/configure-git.sh` is a list of `git config --global …` calls. Re-running rewrites identical values; individual lines can be commented out per machine. Modeled on the older `andrewiggins/setup` repo's pattern.
+- **Git Bash for shared config on Windows**: `install.ps1` calls shared bash scripts (`configure-git.sh`, `configure-claude.sh`) via Git Bash instead of maintaining duplicate PowerShell versions. Git Bash is found by resolving `bash.exe` relative to `git.exe`'s install directory to avoid accidentally using WSL's bash.
 - **`~/.extra` escape hatch**: Both `.bashrc` and `.zshrc` source `~/.extra` if it exists, for private or machine-specific config not tracked in git.
 - **Symlinks, not copies**: Edits to files in `~/.bashrc` etc. flow back to the repo. On Windows this requires Developer Mode.
 - **`SKIP_PACKAGES=1`** is honored by every package install script, so CI and test runs can exercise the full installer without actually invoking `brew`/`apt`/`winget`.

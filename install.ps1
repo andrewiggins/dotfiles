@@ -15,6 +15,43 @@ $ErrorActionPreference = "Stop"
 $RepoDir = $PSScriptRoot
 $DryRun = $env:DRY_RUN -eq "1"
 
+function Find-GitBash {
+	# Find Git Bash specifically — avoid WSL's bash.exe (C:\Windows\System32\bash.exe).
+	# Strategy: use git's install location to find the co-installed bash.
+	$gitCmd = Get-Command git -ErrorAction SilentlyContinue
+	if ($gitCmd) {
+		# git.exe is typically at <GitDir>\cmd\git.exe or <GitDir>\bin\git.exe
+		# bash.exe is at <GitDir>\bin\bash.exe
+		$gitDir = Split-Path -Parent (Split-Path -Parent $gitCmd.Source)
+		$candidate = Join-Path $gitDir "bin\bash.exe"
+		if (Test-Path $candidate) { return $candidate }
+	}
+
+	# Fallback: check common install locations
+	foreach ($path in @(
+		"C:\Program Files\Git\bin\bash.exe",
+		"C:\Program Files (x86)\Git\bin\bash.exe"
+	)) {
+		if (Test-Path $path) { return $path }
+	}
+
+	Write-Error "Git Bash not found. Install Git for Windows: https://git-scm.com"
+	throw
+}
+
+function Invoke-BashScript {
+	param([string]$Script)
+
+	$bashExe = Find-GitBash
+	$unixScript = $Script -replace '\\', '/'
+
+	& $bashExe $unixScript
+	if ($LASTEXITCODE -ne 0) {
+		Write-Error "bash script failed: $Script (exit code $LASTEXITCODE)"
+		throw
+	}
+}
+
 Write-Host "==> dotfiles install"
 Write-Host "    repo:    $RepoDir"
 Write-Host "    home:    $HOME"
@@ -79,7 +116,7 @@ Write-Host "==> Configuring git"
 if ($DryRun) {
 	Write-Host "    (dry-run, skipping git config)"
 } else {
-	& (Join-Path $RepoDir "scripts\configure-git.ps1")
+	Invoke-BashScript (Join-Path $RepoDir "scripts/configure-git.sh")
 }
 
 # --- 5. Configure Claude Code -----------------------------------------------
@@ -87,7 +124,7 @@ Write-Host "==> Configuring Claude Code"
 if ($DryRun) {
 	Write-Host "    (dry-run, skipping Claude Code config)"
 } else {
-	& (Join-Path $RepoDir "scripts\configure-claude.ps1")
+	Invoke-BashScript (Join-Path $RepoDir "scripts/configure-claude.sh")
 }
 
 Write-Host "==> Done."
