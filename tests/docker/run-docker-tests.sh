@@ -61,7 +61,9 @@ do_cleanup() {
 		echo ""
 		echo "==> Cleaning up containers"
 		for name in "${containers[@]}"; do
-			$RUNTIME rm -f "$name" >/dev/null 2>&1 && echo "    removed $name" || true
+			if $RUNTIME rm -f "$name" >/dev/null 2>&1; then
+				echo "    removed $name"
+			fi
 		done
 	else
 		echo ""
