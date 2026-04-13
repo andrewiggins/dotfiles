@@ -1,0 +1,14 @@
+FROM ubuntu:24.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV HOME=/root
+
+# Scripts use sudo/curl/git — base images lack them
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    sudo curl ca-certificates git \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY . /dotfiles
+WORKDIR /dotfiles
+
+CMD ["bash", "-c", "bash /dotfiles/install.sh && bash /dotfiles/tests/docker/verify-install.sh"]
