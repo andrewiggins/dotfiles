@@ -1,0 +1,15 @@
+name: Windows Container Test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  windows-container-test:
+    runs-on: [self-hosted, windows, x64, windows-containers]
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Windows container tests
+        shell: pwsh
+        run: .\tests\windows\run-container-tests.ps1

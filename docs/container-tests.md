@@ -2,7 +2,7 @@
 
 ## Goal
 
-Run `install.sh` in its entirety inside a Linux container, then verify everything was installed correctly. This catches real breakage from upstream package changes, missing dependencies, or script regressions that `SKIP_PACKAGES=1` dry-run testing cannot.
+Run the installers inside containers, then verify everything was installed correctly. This catches real breakage from upstream package changes, missing dependencies, or script regressions that `SKIP_PACKAGES=1` dry-run testing cannot.
 
 ## New Files
 
@@ -11,12 +11,17 @@ tests/linux/
 ├── run-container-tests.sh       # Local + CI test runner
 ├── verify-install.sh            # Post-install verification (runs inside container)
 └── Containerfile.ubuntu
+tests/windows/
+├── run-container-tests.ps1
+├── verify-install.ps1
+└── Containerfile.windows
 .github/workflows/ci.yml         # Extended with docker-test job
+.github/workflows/windows-container.yml
 ```
 
 ---
 
-## Containerfile (`tests/linux/Containerfile.ubuntu`)
+## Linux Containerfile (`tests/linux/Containerfile.ubuntu`)
 
 Single container build file targeting Ubuntu 24.04:
 
@@ -133,6 +138,71 @@ Options:
 
 ---
 
+## Windows Container Tests
+
+Windows uses the same overall pattern as the Linux harness:
+
+- self-contained image with `COPY .`
+- wrapper script owns runtime detection, build, run, cleanup, and summary
+- verifier runs after the installer and returns the failure count as the exit code
+
+### Files
+
+```text
+tests/windows/
+├── run-container-tests.ps1
+├── verify-install.ps1
+└── Containerfile.windows
+```
+
+### Local runtime behavior
+
+`run-container-tests.ps1` checks `podman` first, then `docker`, but only accepts a runtime whose server OS is actually `windows`.
+
+That matters because Podman on Windows often talks to a Linux `podman machine`, which cannot run Windows containers. In that case the script prints a clear message and falls back to Docker if available.
+
+### Usage
+
+```powershell
+.\tests\windows\run-container-tests.ps1
+.\tests\windows\run-container-tests.ps1 full
+.\tests\windows\run-container-tests.ps1 -NoCleanup
+```
+
+### Container-specific installer behavior
+
+The Windows package installer honors `DOTFILES_WINDOWS_CONTAINER=1` to skip packages that are not practical in headless Windows containers:
+
+- `Microsoft.VisualStudioCode`
+- `RedHat.Podman-Desktop`
+- `9P7KNL5RWT25` (Sysinternals via Microsoft Store)
+- Fira Code Nerd Font installation
+
+Everything else still runs, including `winget`, Volta, Rustup, and the npm global install.
+
+### Verification scope
+
+`verify-install.ps1` checks:
+
+- symlinks for `.bashrc`, `.vimrc`, `.editorconfig`, `.config\starship.toml`, `.claude\statusline-command.sh`
+- absence of `.zshrc` and `.zprofile`
+- `~\.vim\undodir`
+- installed commands such as `gh`, `rg`, `jq`, `pwsh`, `starship`, `cargo`, `node`, `pnpm`, and `claude`
+- git config values
+- Claude Code `statusLine.command`
+
+### CI
+
+Linux container tests stay in `.github/workflows/ci.yml`.
+
+Windows container tests live in `.github/workflows/windows-container.yml` and are manual-only for now:
+
+- requires a self-hosted runner labeled `self-hosted`, `windows`, `x64`, `windows-containers`
+- calls the wrapper script instead of hardcoding container commands
+- avoids blocking the main PR workflow when no Windows container runner is available
+
+---
+
 ## CI Integration
 
 Add a `docker-test` job to `.github/workflows/ci.yml` alongside the existing `test` job:
@@ -152,16 +222,19 @@ docker-test:
 
 - **30-minute timeout**: `cargo install --locked bat git-delta starship` compiles from source (~5-15 min).
 - Runs on the same triggers as existing CI (push, PR, weekly Monday 9 AM UTC).
+- Windows container tests are separate because they require a self-hosted Windows container runner.
 
 ---
 
 ## Verification Checklist
 
-1. **All tests**: `bash tests/linux/run-container-tests.sh`
-2. **Full install only**: `bash tests/linux/run-container-tests.sh full`
-3. **Codespaces only**: `bash tests/linux/run-container-tests.sh codespaces`
-4. **Debug mode**: `bash tests/linux/run-container-tests.sh --no-cleanup full` then `podman exec -it <name> bash`
-5. **CI**: Push branch, verify `docker-test` job passes in GitHub Actions
+1. **Linux all tests**: `bash tests/linux/run-container-tests.sh`
+2. **Linux full install only**: `bash tests/linux/run-container-tests.sh full`
+3. **Linux Codespaces only**: `bash tests/linux/run-container-tests.sh codespaces`
+4. **Linux debug mode**: `bash tests/linux/run-container-tests.sh --no-cleanup full` then `podman exec -it <name> bash`
+5. **Windows local run**: `.\tests\windows\run-container-tests.ps1`
+6. **Windows debug mode**: `.\tests\windows\run-container-tests.ps1 -NoCleanup`
+7. **CI**: Push branch, verify `docker-test` in the main workflow; trigger `Windows Container Test` manually on a compatible self-hosted runner
 
 ---
 
@@ -171,3 +244,5 @@ docker-test:
 - **Single distro**: Ubuntu 24.04 only. `install-packages-linux.sh` is apt-only, so no Fedora/RHEL support without refactoring.
 - **Rust compilation is slow**: 5-15 minutes for bat+delta+starship from source. No workaround short of switching to pre-built binaries.
 - **Network dependent**: Scripts download from github.com, rustup.rs, get.volta.sh, starship.rs, cli.github.com. Transient failures will fail the test. The weekly CI schedule helps distinguish transient vs. real issues.
+- **Windows container runtime support varies**: The Windows runner rejects Podman/Docker engines that report `os=linux`, because they cannot build or run the Windows image.
+- **Some Windows packages are intentionally skipped in container mode**: GUI/manual-onboarding installs like VS Code, Podman Desktop, Microsoft Store packages, and font installation are not reliable in headless Windows containers.

@@ -1,0 +1,22 @@
+# escape=`
+FROM mcr.microsoft.com/windows/servercore:ltsc2025
+
+SHELL ["powershell", "-NoLogo", "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", "$ErrorActionPreference = 'Stop';"]
+
+ENV HOME="C:\\Users\\ContainerAdministrator" `
+    USERPROFILE="C:\\Users\\ContainerAdministrator" `
+    DOTFILES_WINDOWS_CONTAINER="1"
+
+WORKDIR C:\\dotfiles
+
+# Git for Windows is required before install.ps1 runs because it invokes bash
+# helpers for git and Claude configuration.
+RUN $gitInstaller = Join-Path $env:TEMP 'Git-64-bit.exe'; `
+    Invoke-WebRequest -Uri 'https://github.com/git-for-windows/git/releases/latest/download/Git-64-bit.exe' -OutFile $gitInstaller; `
+    Start-Process -FilePath $gitInstaller -ArgumentList '/VERYSILENT', '/NORESTART', '/SP-' -Wait; `
+    Remove-Item -Force $gitInstaller; `
+    git --version
+
+COPY . C:\\dotfiles
+
+CMD ["powershell", "-NoLogo", "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", "$env:HOME = $env:USERPROFILE; & 'C:\\dotfiles\\install.ps1'; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; & 'C:\\dotfiles\\tests\\windows\\verify-install.ps1'; exit $LASTEXITCODE"]
