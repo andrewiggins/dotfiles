@@ -1,4 +1,3 @@
-- [ ] Use docker for testing
 - [ ] Add setup for Claude Code using new native installer
 - [ ] Add setup for Codex
 - [ ] Add setup for pi-agent

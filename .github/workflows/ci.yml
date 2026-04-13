@@ -28,7 +28,7 @@ jobs:
           shellcheck install.sh
           shellcheck scripts/*.sh
           shellcheck tests/*.sh
-          shellcheck tests/docker/*.sh
+          shellcheck tests/linux/*.sh
 
       - name: Dry-run install
         run: bash tests/dry-run.sh
@@ -43,4 +43,4 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Run container tests
-        run: bash tests/docker/run-docker-tests.sh
+        run: bash tests/linux/run-container-tests.sh

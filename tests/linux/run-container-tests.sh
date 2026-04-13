@@ -3,7 +3,7 @@
 # Uses podman if available, falls back to docker.
 #
 # Usage:
-#   bash tests/docker/run-docker-tests.sh [OPTIONS] [TEST...]
+#   bash tests/linux/run-container-tests.sh [OPTIONS] [TEST...]
 #
 # Tests: full, codespaces
 #   If none specified, runs all.
@@ -80,7 +80,7 @@ trap do_cleanup EXIT
 
 image="dotfiles-test:ubuntu"
 echo "==> Building image: $image (using $RUNTIME)"
-$RUNTIME build -f "$REPO_DIR/tests/docker/Dockerfile.ubuntu" -t "$image" "$REPO_DIR"
+$RUNTIME build -f "$REPO_DIR/tests/linux/Containerfile.ubuntu" -t "$image" "$REPO_DIR"
 
 # --- Run tests --------------------------------------------------------------
 

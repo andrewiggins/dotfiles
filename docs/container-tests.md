@@ -1,24 +1,24 @@
-# Docker Testing Plan
+# Container Testing Plan
 
 ## Goal
 
-Run `install.sh` in its entirety inside a Docker container, then verify everything was installed correctly. This catches real breakage from upstream package changes, missing dependencies, or script regressions that `SKIP_PACKAGES=1` dry-run testing cannot.
+Run `install.sh` in its entirety inside a Linux container, then verify everything was installed correctly. This catches real breakage from upstream package changes, missing dependencies, or script regressions that `SKIP_PACKAGES=1` dry-run testing cannot.
 
 ## New Files
 
-```
-tests/docker/
-├── run-docker-tests.sh          # Local + CI test runner
+```text
+tests/linux/
+├── run-container-tests.sh       # Local + CI test runner
 ├── verify-install.sh            # Post-install verification (runs inside container)
-└── Dockerfile.ubuntu
+└── Containerfile.ubuntu
 .github/workflows/ci.yml         # Extended with docker-test job
 ```
 
 ---
 
-## Dockerfile (`tests/docker/Dockerfile.ubuntu`)
+## Containerfile (`tests/linux/Containerfile.ubuntu`)
 
-Single Dockerfile targeting Ubuntu 24.04:
+Single container build file targeting Ubuntu 24.04:
 
 ```dockerfile
 FROM ubuntu:24.04
@@ -34,7 +34,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY . /dotfiles
 WORKDIR /dotfiles
 
-CMD ["bash", "-c", "bash /dotfiles/install.sh && bash /dotfiles/tests/docker/verify-install.sh"]
+CMD ["bash", "-c", "bash /dotfiles/install.sh && bash /dotfiles/tests/linux/verify-install.sh"]
 ```
 
 ### Design decisions
@@ -45,7 +45,7 @@ CMD ["bash", "-c", "bash /dotfiles/install.sh && bash /dotfiles/tests/docker/ver
 
 ---
 
-## Verification Script (`tests/docker/verify-install.sh`)
+## Verification Script (`tests/linux/verify-install.sh`)
 
 Runs inside the container after `install.sh` completes. Checks every artifact the installer claims to create.
 
@@ -97,12 +97,12 @@ Exit code = number of failures (0 on success).
 
 ---
 
-## Test Runner (`tests/docker/run-docker-tests.sh`)
+## Test Runner (`tests/linux/run-container-tests.sh`)
 
 ### Usage
 
-```
-bash tests/docker/run-docker-tests.sh [OPTIONS] [TEST...]
+```bash
+bash tests/linux/run-container-tests.sh [OPTIONS] [TEST...]
 
 Tests: full, codespaces
   If none specified, runs all.
@@ -114,7 +114,7 @@ Options:
 ### Behavior
 
 1. **Detect runtime**: Uses `podman` if available, falls back to `docker`.
-2. **Build**: `<runtime> build -f tests/docker/Dockerfile.ubuntu -t dotfiles-test:ubuntu .`
+2. **Build**: `<runtime> build -f tests/linux/Containerfile.ubuntu -t dotfiles-test:ubuntu .`
 3. **Run**: Execute the requested tests (`full`, `codespaces`, or both by default).
 4. **Summary**: Print pass/fail result. Exit non-zero if any test failed.
 5. **Cleanup** (default): `<runtime> rm -f` all created containers via a `trap` on exit.
@@ -128,8 +128,8 @@ Options:
 ### Design decisions
 
 - **Podman-first, Docker fallback**: The runner auto-detects the container runtime. Locally this uses Podman; CI on GitHub Actions uses Docker (pre-installed on runners).
-- **No docker-compose**: Plain `build` + `run` commands have no extra dependencies and there's no inter-container networking to manage.
-- **No bind mounts**: `COPY` in the Dockerfile makes images self-contained. Rebuilding is fast since only the `COPY` layer changes.
+- **No compose layer**: Plain `build` + `run` commands have no extra dependencies and there's no inter-container networking to manage.
+- **No bind mounts**: `COPY` in the Containerfile makes images self-contained. Rebuilding is fast since only the `COPY` layer changes.
 
 ---
 
@@ -145,7 +145,7 @@ docker-test:
     - uses: actions/checkout@v4
 
     - name: Run container tests
-      run: bash tests/docker/run-docker-tests.sh
+      run: bash tests/linux/run-container-tests.sh
 ```
 
 ### Notes
@@ -157,10 +157,10 @@ docker-test:
 
 ## Verification Checklist
 
-1. **All tests**: `bash tests/docker/run-docker-tests.sh`
-2. **Full install only**: `bash tests/docker/run-docker-tests.sh full`
-3. **Codespaces only**: `bash tests/docker/run-docker-tests.sh codespaces`
-4. **Debug mode**: `bash tests/docker/run-docker-tests.sh --no-cleanup full` then `podman exec -it <name> bash`
+1. **All tests**: `bash tests/linux/run-container-tests.sh`
+2. **Full install only**: `bash tests/linux/run-container-tests.sh full`
+3. **Codespaces only**: `bash tests/linux/run-container-tests.sh codespaces`
+4. **Debug mode**: `bash tests/linux/run-container-tests.sh --no-cleanup full` then `podman exec -it <name> bash`
 5. **CI**: Push branch, verify `docker-test` job passes in GitHub Actions
 
 ---

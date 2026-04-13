@@ -11,4 +11,4 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY . /dotfiles
 WORKDIR /dotfiles
 
-CMD ["bash", "-c", "bash /dotfiles/install.sh && bash /dotfiles/tests/docker/verify-install.sh"]
+CMD ["bash", "-c", "bash /dotfiles/install.sh && bash /dotfiles/tests/linux/verify-install.sh"]
