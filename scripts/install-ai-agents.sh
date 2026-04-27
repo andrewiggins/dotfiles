@@ -37,4 +37,4 @@ else
 fi
 
 install_npm_cli codex @openai/codex
-install_npm_cli pi-agent @mariozechner/pi-agent
+install_npm_cli pi @mariozechner/pi-coding-agent

@@ -31,8 +31,8 @@ dotfiles/
 ├── scripts/
 │   ├── configure-git.sh       # `git config --global` calls (all platforms)
 │   ├── configure-claude.sh    # Claude Code settings.json setup (all platforms)
-│   ├── install-ai-agents.sh   # Claude/Codex/pi-agent install (Unix/macOS/WSL/Codespaces)
-│   ├── install-ai-agents.ps1  # Claude/Codex/pi-agent install (Windows)
+│   ├── install-ai-agents.sh   # Claude/Codex/Pi Coding Agent install (Unix/macOS/WSL/Codespaces)
+│   ├── install-ai-agents.ps1  # Claude/Codex/Pi Coding Agent install (Windows)
 │   ├── install-packages-codespaces.sh
 │   ├── install-packages-macos.sh
 │   ├── install-packages-linux.sh

@@ -9,7 +9,7 @@ Cross-platform dotfiles managed with a plain shell installer and symlinks. Works
 - **Vim** — persistent undo, incremental search, sensible defaults
 - **EditorConfig** — consistent formatting across editors
 - **Starship** — Nerd Font symbols, posh-git style git status
-- **AI agents** — Claude Code, Codex, and pi-agent available from the terminal
+- **AI agents** — Claude Code, Codex, and Pi Coding Agent available from the terminal
 - **Media tools** — ffmpeg and ImageMagick on Linux, macOS, and Windows
 - **Packages** — platform-specific package installation (apt, Homebrew, winget, upstream release/install scripts)
 - **Containers** — Podman on Linux, macOS, and Windows; skipped in GitHub Codespaces
@@ -50,7 +50,7 @@ The Windows installer installs Podman Desktop, but leaves Podman machine setup t
 2. Symlinks every file under `home/` into `$HOME`, skipping macOS-only files (`.zshrc`, `.zprofile`) on other platforms.
 3. Runs the appropriate `scripts/install-packages-*.sh` for the detected OS.
 4. Runs `scripts/configure-git.sh`, which is just a list of `git config --global …` calls — idempotent and individually editable per-machine.
-5. Installs terminal AI agents (`claude`, `codex`, `pi-agent`) using the platform-appropriate installers.
+5. Installs terminal AI agents (`claude`, `codex`, `pi`) using the platform-appropriate installers.
 6. Runs `scripts/configure-claude.sh` to keep Claude Code's statusline wired to the repo-managed script.
 
 Podman behavior by platform:

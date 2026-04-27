@@ -141,7 +141,7 @@ if [ "$is_codespaces" = "0" ]; then
 	echo "--- AI agents"
 	check_command claude
 	check_command codex
-	check_command pi-agent
+	check_command pi
 
 	echo "--- ripgrep"
 	check_command rg
@@ -164,7 +164,7 @@ else
 	echo "--- AI agents"
 	check_command claude
 	check_command codex
-	check_command pi-agent
+	check_command pi
 fi
 
 echo "--- Volta + Node"

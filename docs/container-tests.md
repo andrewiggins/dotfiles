@@ -70,7 +70,7 @@ export PATH="$VOLTA_HOME/bin:$HOME/.local/bin:$PATH"
 | **Rust** | rustup + cargo | `command -v cargo && command -v rustc` |
 | **Cargo packages** | bat, delta, starship | `command -v bat && command -v delta && command -v starship` |
 | **gh CLI** | GitHub CLI | `command -v gh` |
-| **AI agents** | Claude Code, Codex, pi-agent | `command -v claude && command -v codex && command -v pi-agent` |
+| **AI agents** | Claude Code, Codex, Pi Coding Agent | `command -v claude && command -v codex && command -v pi` |
 | **Volta + Node** | Volta dir, node, pnpm | `[ -d "$HOME/.volta" ]`, `command -v node`, `command -v pnpm` |
 | **Git config** | Identity, aliases, pager | `git config --global user.name` = "Andre Wiggins", `alias.st` = "status -s", `core.pager` = "delta" |
 | **Claude config** | settings.json with statusLine | `[ -f "$HOME/.claude/settings.json" ]`, verify `statusLine` key via jq |
@@ -80,7 +80,7 @@ export PATH="$VOLTA_HOME/bin:$HOME/.local/bin:$PATH"
 When `CODESPACES=true` is set, `install.sh` runs `install-packages-codespaces.sh` instead of `install-packages-linux.sh`. The verification script detects this and adjusts:
 
 - **Skip**: apt packages (build-essential, cmake, ffmpeg, ripgrep, gh, ImageMagick), rust/cargo, cargo packages (bat, delta)
-- **Check**: starship (installed to `~/.local/bin`), `claude`, `codex`, `pi-agent`, volta, node, pnpm
+- **Check**: starship (installed to `~/.local/bin`), `claude`, `codex`, `pi`, volta, node, pnpm
 - **Git config**: Should NOT have `core.pager = delta` (codespaces path sets `IS_CODESPACES=1`)
 - **Symlinks**: Same as full Linux (minus `.zshrc`/`.zprofile` which are macOS-only)
 

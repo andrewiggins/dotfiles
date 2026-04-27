@@ -38,4 +38,4 @@ if (Get-Command claude -ErrorAction SilentlyContinue) {
 }
 
 Install-NpmCli -CommandName "codex" -PackageName "@openai/codex"
-Install-NpmCli -CommandName "pi-agent" -PackageName "@mariozechner/pi-agent"
+Install-NpmCli -CommandName "pi" -PackageName "@mariozechner/pi-coding-agent"
