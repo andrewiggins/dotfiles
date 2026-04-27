@@ -31,7 +31,13 @@ fi
 errors=0
 
 echo "=== Phase 1: DRY_RUN=1 ==="
-HOME="$fake" DRY_RUN=1 bash "$REPO_DIR/install.sh"
+dry_run_output="$(HOME="$fake" DRY_RUN=1 bash "$REPO_DIR/install.sh")"
+printf '%s\n' "$dry_run_output"
+
+if ! printf '%s\n' "$dry_run_output" | grep -Fq "==> Installing AI agents"; then
+	echo "FAIL: dry-run output should include the AI agent install phase"
+	exit 1
+fi
 
 # Dry-run must not have created anything
 if [ -e "$fake/.bashrc" ]; then

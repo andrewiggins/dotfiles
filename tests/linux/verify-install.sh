@@ -42,6 +42,20 @@ check_command() {
 	fi
 }
 
+check_any_command() {
+	local label="$1"
+	shift
+
+	for cmd in "$@"; do
+		if command -v "$cmd" >/dev/null 2>&1; then
+			ok "command $label found via $cmd"
+			return
+		fi
+	done
+
+	fail "command $label not found (checked: $*)"
+}
+
 check_dir() {
 	local dir="$1"
 	if [ -d "$dir" ]; then
@@ -118,9 +132,16 @@ if [ "$is_codespaces" = "0" ]; then
 	check_command gcc
 	check_command cmake
 	check_command curl
+	check_command ffmpeg
 	check_command git
+	check_any_command imagemagick magick convert
 	check_command jq
 	check_command vim
+
+	echo "--- AI agents"
+	check_command claude
+	check_command codex
+	check_command pi-agent
 
 	echo "--- ripgrep"
 	check_command rg
@@ -139,6 +160,11 @@ if [ "$is_codespaces" = "0" ]; then
 else
 	echo "--- Codespaces packages"
 	check_command starship
+
+	echo "--- AI agents"
+	check_command claude
+	check_command codex
+	check_command pi-agent
 fi
 
 echo "--- Volta + Node"

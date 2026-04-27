@@ -13,6 +13,8 @@ Write-Host "Installing packages via winget..."
 winget install -e --id GitHub.cli
 winget install -e --id BurntSushi.ripgrep.MSVC
 winget install -e --id dandavison.delta
+winget install -e --id Gyan.FFmpeg
+winget install -e --id ImageMagick.ImageMagick
 winget install -e --id jqlang.jq
 winget install -e --id Microsoft.VisualStudioCode
 winget install -e --id Microsoft.PowerShell
@@ -47,6 +49,3 @@ Push-Location $tempDir
 & .\install.ps1 FiraCode
 Pop-Location
 Remove-Item -Recurse -Force $tempDir
-
-# Install npm globals
-npm install -g @anthropic-ai/claude-code

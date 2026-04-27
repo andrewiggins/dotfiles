@@ -31,6 +31,8 @@ dotfiles/
 ├── scripts/
 │   ├── configure-git.sh       # `git config --global` calls (all platforms)
 │   ├── configure-claude.sh    # Claude Code settings.json setup (all platforms)
+│   ├── install-ai-agents.sh   # Claude/Codex/pi-agent install (Unix/macOS/WSL/Codespaces)
+│   ├── install-ai-agents.ps1  # Claude/Codex/pi-agent install (Windows)
 │   ├── install-packages-codespaces.sh
 │   ├── install-packages-macos.sh
 │   ├── install-packages-linux.sh
@@ -45,7 +47,7 @@ dotfiles/
     └── MACHINE_TYPES.md       # Historical work/personal split + how to revive
 ```
 
-`install.sh` is the Unix/macOS/WSL/Codespaces entry point; `install.ps1` handles native Windows. Source dotfiles live under `home/` and are symlinked into `$HOME` at install time. Shared setup logic lives in `scripts/`, with platform-specific installers such as `install-packages-linux.sh` and `install-packages-windows.ps1`. Integration and regression checks live in `tests/`. Background notes belong in `docs/`.
+`install.sh` is the Unix/macOS/WSL/Codespaces entry point; `install.ps1` handles native Windows. Source dotfiles live under `home/` and are symlinked into `$HOME` at install time. Shared setup logic lives in `scripts/`, with platform-specific installers such as `install-packages-linux.sh`, `install-packages-windows.ps1`, and the cross-platform AI-agent install scripts. Integration and regression checks live in `tests/`. Background notes belong in `docs/`.
 
 ## Key Patterns
 

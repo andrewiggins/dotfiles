@@ -26,6 +26,7 @@ brew install \
 	git-lfs \
 	gnu-tar \
 	grep \
+	imagemagick \
 	jq \
 	podman \
 	ripgrep \

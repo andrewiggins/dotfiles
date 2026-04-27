@@ -1,7 +1,7 @@
 # dotfiles installer for native Windows.
 #
-# Symlinks files in home/ into $HOME (skipping macOS-only files), runs winget
-# package install, and configures git.
+# Symlinks files in home/ into $HOME (skipping macOS-only files), runs package
+# install plus AI agent setup, then configures git and Claude Code.
 #
 # Symlinks require Developer Mode (Settings -> Privacy & Security -> For
 # developers) or running as Administrator.
@@ -119,7 +119,15 @@ if ($DryRun) {
 	Invoke-BashScript (Join-Path $RepoDir "scripts/configure-git.sh")
 }
 
-# --- 5. Configure Claude Code -----------------------------------------------
+# --- 5. Install AI agents ---------------------------------------------------
+Write-Host "==> Installing AI agents"
+if ($DryRun) {
+	Write-Host "    (dry-run, skipping AI agent install)"
+} else {
+	& (Join-Path $RepoDir "scripts\install-ai-agents.ps1")
+}
+
+# --- 6. Configure Claude Code -----------------------------------------------
 Write-Host "==> Configuring Claude Code"
 if ($DryRun) {
 	Write-Host "    (dry-run, skipping Claude Code config)"

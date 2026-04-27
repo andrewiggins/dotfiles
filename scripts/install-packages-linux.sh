@@ -20,8 +20,10 @@ sudo apt install -y \
 	bat \
 	cmake \
 	curl \
+	ffmpeg \
 	git \
 	git-gui \
+	imagemagick \
 	jq \
 	vim
 

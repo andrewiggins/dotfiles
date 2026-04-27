@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # dotfiles installer for Linux, macOS, WSL, and GitHub Codespaces.
 #
-# Symlinks files in home/ into $HOME, runs platform-appropriate package install
-# scripts, and configures git. Idempotent — safe to re-run.
+# Symlinks files in home/ into $HOME, runs platform-appropriate package and AI
+# agent install scripts, then configures git and Claude Code. Idempotent —
+# safe to re-run.
 #
 # Environment overrides:
 #   DRY_RUN=1         Print actions without modifying anything.
@@ -90,7 +91,15 @@ else
 		bash "$REPO_DIR/scripts/configure-git.sh"
 fi
 
-# --- 5. Configure Claude Code -----------------------------------------------
+# --- 5. Install AI agents ---------------------------------------------------
+echo "==> Installing AI agents"
+if [ "$DRY_RUN" = "1" ]; then
+	echo "    (dry-run, skipping AI agent install)"
+else
+	bash "$REPO_DIR/scripts/install-ai-agents.sh"
+fi
+
+# --- 6. Configure Claude Code -----------------------------------------------
 echo "==> Configuring Claude Code"
 if [ "$DRY_RUN" = "1" ]; then
 	echo "    (dry-run, skipping Claude Code config)"

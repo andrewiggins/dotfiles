@@ -1,6 +1,6 @@
-- [ ] Add setup for Claude Code using new native installer
-- [ ] Add setup for Codex
-- [ ] Add setup for pi-agent
-- [ ] Add setup for ffmpeg (if not already there)
-- [ ] Add setup for imagemagick
-- [ ] Ensure all AI agents are available in codespaces
+- [x] Add setup for Claude Code using new native installer
+- [x] Add setup for Codex
+- [x] Add setup for pi-agent
+- [x] Add setup for ffmpeg (if not already there)
+- [x] Add setup for imagemagick
+- [x] Ensure all AI agents are available in codespaces
