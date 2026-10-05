@@ -22,6 +22,10 @@ Set this repo as your [dotfiles repository](https://docs.github.com/en/codespace
 
 ### Linux / macOS / WSL
 
+Run as your normal user, not root or with `sudo`. The installer rejects root
+execution (including dry-runs); individual system package operations request
+`sudo` where needed.
+
 ```sh
 git clone https://github.com/andrewiggins/dotfiles.git ~/dotfiles
 ~/dotfiles/install.sh
@@ -33,7 +37,11 @@ On WSL, the installer intentionally skips a local Podman daemon and expects you 
 
 ### Windows
 
-Requires Developer Mode (Settings → Privacy & Security → For developers) so symlinks can be created without elevation.
+Run from a **non-elevated terminal** with Developer Mode enabled (Settings →
+Privacy & Security → For developers) so symlinks can be created without elevation.
+The installer rejects Administrator execution, including dry-runs. Individual
+package installers may show their own elevation prompts; do not elevate the
+whole dotfiles installer.
 
 ```powershell
 git clone https://github.com/andrewiggins/dotfiles.git $HOME\dotfiles
@@ -78,6 +86,24 @@ cd ~/dotfiles && git pull && ./install.sh
 ```
 
 Re-running the installer is safe — symlinks are recreated and `git config` calls overwrite identical values.
+
+## Test installer privilege checks
+
+```sh
+bash tests/install-privileges.sh
+```
+
+All elevated installer tests use `DRY_RUN=1`, so a privilege-guard regression
+cannot trigger actual installation. Root rejection is tested when running as
+root or when passwordless sudo is available (as in CI); otherwise that portion
+is explicitly skipped.
+
+On Windows, run `./tests/install-privileges.ps1` in both a normal and an
+Administrator PowerShell terminal. The test uses dry-run only and verifies that
+the installer allows the normal token and rejects the elevated token.
+
+Full container tests run the installer as a normal user with passwordless sudo
+inside the disposable image, not as root. This does not change host sudo policy.
 
 ## Verify Podman
 

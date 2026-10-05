@@ -1,14 +1,21 @@
 FROM ubuntu:24.04
 
 ENV DEBIAN_FRONTEND=noninteractive
-ENV HOME=/root
+ENV HOME=/home/dotfiles-test
 
 # Scripts use sudo/curl/git — base images lack them
 RUN apt-get update && apt-get install -y --no-install-recommends \
     sudo curl ca-certificates git \
     && rm -rf /var/lib/apt/lists/*
 
+# Ubuntu 24.04 may already have a UID 1000 user; let useradd choose a free UID.
+# Passwordless sudo is confined to this disposable test image, not host setup.
+RUN useradd --create-home --shell /bin/bash dotfiles-test \
+    && printf '%s\n' 'dotfiles-test ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/dotfiles-test \
+    && chmod 0440 /etc/sudoers.d/dotfiles-test
+
 COPY . /dotfiles
 WORKDIR /dotfiles
+USER dotfiles-test
 
 CMD ["bash", "-c", "bash /dotfiles/install.sh && bash /dotfiles/tests/linux/verify-install.sh"]

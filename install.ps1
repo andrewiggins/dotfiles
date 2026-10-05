@@ -3,14 +3,26 @@
 # Symlinks files in home/ into $HOME (skipping macOS-only files), runs package
 # install plus AI agent setup, then configures git and Claude Code.
 #
-# Symlinks require Developer Mode (Settings -> Privacy & Security -> For
-# developers) or running as Administrator.
+# Run from a non-elevated terminal. Symlinks require Developer Mode
+# (Settings -> Privacy & Security -> For developers).
 #
 # Environment overrides:
 #   $env:DRY_RUN = "1"        Print actions without modifying anything.
 #   $env:SKIP_PACKAGES = "1"  Skip running winget install.
 
 $ErrorActionPreference = "Stop"
+
+# Check the current token, not just membership in the Administrators group.
+# Refuse elevation before any filesystem changes, even for a dry-run.
+$identity = [System.Security.Principal.WindowsIdentity]::GetCurrent()
+try {
+	$principal = [System.Security.Principal.WindowsPrincipal]::new($identity)
+	if ($principal.IsInRole([System.Security.Principal.WindowsBuiltInRole]::Administrator)) {
+		throw "Do not run the dotfiles installer as Administrator. Open a non-elevated terminal and enable Developer Mode for symlinks. Package installers may request elevation separately."
+	}
+} finally {
+	$identity.Dispose()
+}
 
 $RepoDir = $PSScriptRoot
 $DryRun = $env:DRY_RUN -eq "1"
@@ -76,9 +88,8 @@ function Link-File {
 	} catch {
 		Write-Error @"
 Failed to create symlink $Dest -> $Src
-Symlinks on Windows require either:
-  - Developer Mode (Settings -> Privacy & Security -> For developers), or
-  - Running this script as Administrator.
+Enable Developer Mode (Settings -> Privacy & Security -> For developers)
+and rerun from a non-elevated terminal. Do not run this script as Administrator.
 Original error: $_
 "@
 		throw

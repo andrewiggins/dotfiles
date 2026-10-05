@@ -14,6 +14,12 @@
 
 set -euo pipefail
 
+# Check before any filesystem changes, including when previewing an install.
+if [ "$EUID" -eq 0 ]; then
+	echo "Do not run the dotfiles installer as root or with sudo. Run it as your normal user; package installation will request sudo only where needed." >&2
+	exit 1
+fi
+
 REPO_DIR="$(cd "$(dirname "$0")" && pwd)"
 DRY_RUN="${DRY_RUN:-0}"
 SKIP_PACKAGES="${SKIP_PACKAGES:-0}"

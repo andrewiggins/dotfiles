@@ -27,6 +27,9 @@ jobs:
           shellcheck tests/*.sh
           shellcheck tests/linux/*.sh
 
+      - name: Installer privilege checks
+        run: bash tests/install-privileges.sh
+
       - name: Dry-run install
         run: bash tests/dry-run.sh
 

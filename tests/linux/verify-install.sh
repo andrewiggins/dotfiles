@@ -97,6 +97,12 @@ check_file() {
 	fi
 }
 
+# The installer and user-scoped downloads must run without root privileges.
+if [ "$EUID" -eq 0 ]; then
+	echo "FAIL: container installation must run as a non-root user"
+	exit 1
+fi
+
 # --- Setup PATH for installed tools ----------------------------------------
 
 # shellcheck disable=SC1091

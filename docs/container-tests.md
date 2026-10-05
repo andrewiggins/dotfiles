@@ -24,22 +24,27 @@ Single container build file targeting Ubuntu 24.04:
 FROM ubuntu:24.04
 
 ENV DEBIAN_FRONTEND=noninteractive
-ENV HOME=/root
+ENV HOME=/home/dotfiles-test
 
 # Scripts use sudo/curl/git — base images lack them
 RUN apt-get update && apt-get install -y --no-install-recommends \
     sudo curl ca-certificates git \
     && rm -rf /var/lib/apt/lists/*
 
+RUN useradd --create-home --shell /bin/bash dotfiles-test \
+    && printf '%s\n' 'dotfiles-test ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/dotfiles-test \
+    && chmod 0440 /etc/sudoers.d/dotfiles-test
+
 COPY . /dotfiles
 WORKDIR /dotfiles
+USER dotfiles-test
 
 CMD ["bash", "-c", "bash /dotfiles/install.sh && bash /dotfiles/tests/linux/verify-install.sh"]
 ```
 
 ### Design decisions
 
-- **Run as root with sudo installed**: The install scripts call `sudo apt`. Running as root with sudo installed means sudo is a no-op pass-through — simplest approach.
+- **Run as a normal user**: The installer rejects root execution. The image creates `dotfiles-test` with passwordless sudo for system package operations only; user-scoped downloads run without root privileges. This sudo policy exists only inside the disposable test image. Verification also rejects root.
 - **`COPY . /dotfiles`**: Makes images self-contained and works identically in CI. The test runner builds fresh images each time.
 - **Single distro**: Starting with Ubuntu 24.04 only. More distros can be added later if needed.
 
