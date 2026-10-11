@@ -14,6 +14,9 @@ if ! command -v brew >/dev/null 2>&1; then
 	/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 fi
 
+# Do not let `brew install` upgrade already-installed formulae/casks.
+export HOMEBREW_NO_INSTALL_UPGRADE=1
+
 # Install packages via Homebrew (idempotent)
 brew install \
 	bash \
@@ -53,5 +56,6 @@ fi
 # Install Node toolchain
 export VOLTA_HOME="$HOME/.volta"
 export PATH="$VOLTA_HOME/bin:$PATH"
+# Always configure Volta-managed tools, regardless of other tools on PATH.
 volta install node
 volta install pnpm

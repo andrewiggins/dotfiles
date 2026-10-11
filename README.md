@@ -85,7 +85,60 @@ For the historical `personal` vs `work` machine_type distinction (and how to rei
 cd ~/dotfiles && git pull && ./install.sh
 ```
 
-Re-running the installer is safe — symlinks are recreated and `git config` calls overwrite identical values.
+Re-running the installer recreates symlinks and rewrites Git configuration. It is
+an **install-only setup, not a general package upgrade command**. Existing AI
+tools are left alone. Apt skips upgrades of already-installed requested packages,
+winget uses `--no-upgrade`, and Homebrew install-time upgrades are disabled.
+
+**Volta is an intentional exception:** every package-setup run invokes
+`volta install node` and `volta install pnpm` to configure Volta-managed tools,
+even if Node or pnpm already exists on PATH. Re-running these commands may change
+Volta's selected versions to its current defaults.
+
+Missing packages can still require dependency changes; upstream auto-updaters
+and OS update policies remain independent. Maintain security updates separately
+using your package managers or the tools' supported update mechanisms.
+
+## Fresh-install version choices
+
+Except for the Volta setup described above, these choices apply when a tool is
+missing, not as required versions for existing tools. Fresh installations on
+different dates/machines may resolve differently.
+
+| Tool/source | Fresh-install selection |
+| --- | --- |
+| apt, Homebrew, winget packages | Version available from the configured package-manager sources; no new pins |
+| Linux ripgrep direct download | `14.1.1` (`amd64`); macOS/Windows use their package managers |
+| Linux delta direct download | Latest GitHub release for the detected architecture |
+| Codex / Pi npm installs | Registry default tag for `@openai/codex` / `@mariozechner/pi-coding-agent`; no version specified |
+| Claude native installer | Upstream installer's default release/channel |
+| Node / pnpm via Volta | Volta's defaults on every package-setup run; existing PATH commands do not suppress Volta installation |
+| Rustup, Starship, Volta, Homebrew bootstrappers | Upstream bootstrapper defaults (Starship on macOS/Windows uses the package manager) |
+| Windows Nerd Fonts | Current upstream branch; no commit/version pin |
+
+This table documents selection, not verification of package ownership, artifact
+integrity, or support status.
+
+## Optional tool-path report
+
+```sh
+bash scripts/report-tools.sh
+bash scripts/report-tools.sh node pnpm pi
+```
+
+On Windows:
+
+```powershell
+./scripts/report-tools.ps1
+./scripts/report-tools.ps1 -Tools node,pnpm,pi
+```
+
+These standalone reports show executable paths on the **current PATH** and
+missing tools. They never execute discovered tools, probe versions, install
+packages, or change configuration. Reports are not run by the installer or its
+dry-run. They do not establish package provenance or identify every installed
+package. Inspect versions explicitly with trusted tools (for example,
+`node --version` or `pi --version`) or your package manager when needed.
 
 ## Test installer privilege checks
 

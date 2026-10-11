@@ -10,23 +10,24 @@ if ($env:SKIP_PACKAGES -eq "1") {
 
 Write-Host "Installing packages via winget..."
 
-winget install -e --id GitHub.cli
-winget install -e --id BurntSushi.ripgrep.MSVC
-winget install -e --id dandavison.delta
-winget install -e --id Gyan.FFmpeg
-winget install -e --id ImageMagick.ImageMagick
-winget install -e --id jqlang.jq
-winget install -e --id Microsoft.VisualStudioCode
-winget install -e --id Microsoft.PowerShell
-winget install -e --id RedHat.Podman-Desktop
-winget install -e --id sharkdp.bat
-winget install -e --id vim.vim
-winget install -e --id 7zip.7zip
-winget install -e --id Python.Python
-winget install -e --id Volta.Volta
-winget install --id 9P7KNL5RWT25 --source msstore # Sysinternals Suite
-winget install -e --id Rustlang.Rustup
-winget install -e --id Starship.Starship
+# winget install otherwise attempts to upgrade existing packages.
+winget install --no-upgrade -e --id GitHub.cli
+winget install --no-upgrade -e --id BurntSushi.ripgrep.MSVC
+winget install --no-upgrade -e --id dandavison.delta
+winget install --no-upgrade -e --id Gyan.FFmpeg
+winget install --no-upgrade -e --id ImageMagick.ImageMagick
+winget install --no-upgrade -e --id jqlang.jq
+winget install --no-upgrade -e --id Microsoft.VisualStudioCode
+winget install --no-upgrade -e --id Microsoft.PowerShell
+winget install --no-upgrade -e --id RedHat.Podman-Desktop
+winget install --no-upgrade -e --id sharkdp.bat
+winget install --no-upgrade -e --id vim.vim
+winget install --no-upgrade -e --id 7zip.7zip
+winget install --no-upgrade -e --id Python.Python
+winget install --no-upgrade -e --id Volta.Volta
+winget install --no-upgrade --id 9P7KNL5RWT25 --source msstore # Sysinternals Suite
+winget install --no-upgrade -e --id Rustlang.Rustup
+winget install --no-upgrade -e --id Starship.Starship
 
 Write-Host ""
 Write-Host "Podman Desktop needs one manual first run to finish setup."
@@ -36,7 +37,7 @@ Write-Host ""
 # Reload environment so newly installed tools like Volta are available.
 $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path", "User")
 
-# Install Node toolchain
+# Always configure Volta-managed tools, regardless of other tools on PATH.
 volta install node
 volta install pnpm
 
