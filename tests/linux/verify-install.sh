@@ -68,8 +68,9 @@ check_dir() {
 check_git_config() {
 	local key="$1"
 	local expected="$2"
+	local scope="${3:---global}"
 	local actual
-	actual="$(git config --global "$key" 2>/dev/null || echo "")"
+	actual="$(git config "$scope" "$key" 2>/dev/null || echo "")"
 	if [ "$actual" = "$expected" ]; then
 		ok "git config $key = $expected"
 	else
@@ -181,8 +182,19 @@ check_command pnpm
 # --- Git config -------------------------------------------------------------
 
 echo "--- Git config"
-check_git_config "user.name" "Andre Wiggins"
-check_git_config "user.email" "andrewiggins@live.com"
+if [ "$is_codespaces" = "0" ]; then
+	check_git_config "user.name" "Andre Wiggins"
+	check_git_config "user.email" "andrewiggins@live.com"
+else
+	# Supplied by the synthetic system fixture, not written by dotfiles.
+	check_git_config_absent "user.name"
+	check_git_config_absent "user.email"
+	check_git_config "user.name" "Managed Codespaces User" --get
+	check_git_config "user.email" "123+example@users.noreply.github.com" --get
+	check_git_config "gpg.program" "managed-signing-program" --get
+	check_git_config "commit.gpgsign" "true" --get
+	check_git_config "credential.helper" "managed-credential-helper" --get
+fi
 check_git_config "init.defaultBranch" "main"
 check_git_config "push.autoSetupRemote" "true"
 check_git_config "alias.st" "status -s"

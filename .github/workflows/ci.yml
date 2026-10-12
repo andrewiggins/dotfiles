@@ -36,6 +36,9 @@ jobs:
       - name: Install mode detection
         run: bash tests/install-modes.sh
 
+      - name: Git identity configuration
+        run: bash tests/git-identity.sh
+
   docker-test:
     runs-on: ubuntu-latest
     timeout-minutes: 30

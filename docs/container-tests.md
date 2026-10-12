@@ -86,7 +86,7 @@ When `CODESPACES=true` is set, `install.sh` runs `install-packages-codespaces.sh
 
 - **Skip**: apt packages (build-essential, cmake, ffmpeg, ripgrep, gh, ImageMagick), rust/cargo, cargo packages (bat, delta)
 - **Check**: starship (installed to `~/.local/bin`), `claude`, `codex`, `pi`, volta, node, pnpm
-- **Git config**: Should NOT have `core.pager = delta` (codespaces path sets `IS_CODESPACES=1`)
+- **Git config**: Should NOT have `core.pager = delta` or global identity values. The runner supplies `tests/linux/codespaces.gitconfig` via `GIT_CONFIG_SYSTEM` to simulate a managed identity distinct from the personal default. Verification checks effective identity and unchanged signing/credential settings. The fixture's signer is a stand-in, not an executable; these checks do not prove compatibility with GitHub's signing service.
 - **Symlinks**: Same as full Linux (minus `.zshrc`/`.zprofile` which are macOS-only)
 
 ### Output format

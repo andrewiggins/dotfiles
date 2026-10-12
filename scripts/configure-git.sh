@@ -3,20 +3,38 @@
 # blocks can be commented out per-machine.
 #
 # Environment overrides:
-#   GIT_EMAIL      — defaults to andrewiggins@live.com
-#   IS_CODESPACES  — set to "1" to skip delta + VS Code merge tool config
+#   GIT_EMAIL      — defaults to andrewiggins@live.com outside Codespaces;
+#                    explicit overrides in Codespaces may break managed signing
+#   IS_CODESPACES  — set to "1" to preserve managed identity and skip local tools
 #   IS_WSL         — set to "1" to enable Windows Git Credential Manager
 set -euo pipefail
 
 echo "Configuring git..."
 
-GIT_EMAIL="${GIT_EMAIL:-andrewiggins@live.com}"
+GIT_EMAIL="${GIT_EMAIL:-}"
 IS_CODESPACES="${IS_CODESPACES:-0}"
 IS_WSL="${IS_WSL:-0}"
 
 # --- Identity ---------------------------------------------------------------
-git config --global user.name "Andre Wiggins"
-git config --global user.email "$GIT_EMAIL"
+if [ "$IS_CODESPACES" = "1" ]; then
+	# Leave system-provided identity in place rather than copying it globally.
+	# Existing global identities are intentional or require manual cleanup.
+	if [ -z "$(git config --system --includes --get user.name || true)" ] ||
+		[ -z "$(git config --system --includes --get user.email || true)" ]; then
+		echo "Warning: Codespaces system Git identity is incomplete; managed signing compatibility is not established." >&2
+	fi
+	if [ -n "$GIT_EMAIL" ]; then
+		echo "Warning: explicit GIT_EMAIL overrides Codespaces identity and may break managed signing." >&2
+		git config --global user.email "$GIT_EMAIL"
+	else
+		echo "Leaving Codespaces Git identity unchanged."
+	fi
+else
+	GIT_EMAIL="${GIT_EMAIL:-andrewiggins@live.com}"
+	git config --global user.name "Andre Wiggins"
+	git config --global user.email "$GIT_EMAIL"
+	echo "Git identity configured (email=$GIT_EMAIL)."
+fi
 
 # --- Defaults ---------------------------------------------------------------
 git config --global init.defaultBranch main
@@ -64,7 +82,7 @@ fi
 # When running under WSL without VS Code on PATH, use the Windows Git Credential
 # Manager so credentials are stored via the host OS keychain.
 # Ref: https://github.com/git-ecosystem/git-credential-manager/blob/main/docs/wsl.md
-if [ "$IS_WSL" = "1" ] && ! command -v code >/dev/null 2>&1; then
+if [ "$IS_CODESPACES" != "1" ] && [ "$IS_WSL" = "1" ] && ! command -v code >/dev/null 2>&1; then
 	git config --global credential.helper '/mnt/c/Program\ Files/Git/mingw64/bin/git-credential-manager.exe'
 fi
 
@@ -77,4 +95,4 @@ git config --global filter.lfs.clean 'git-lfs clean -- %f'
 git config --global filter.lfs.smudge 'git-lfs smudge -- %f'
 git config --global filter.lfs.process 'git-lfs filter-process'
 
-echo "Git configured (email=$GIT_EMAIL, codespaces=$IS_CODESPACES, wsl=$IS_WSL)."
+echo "Git configured (codespaces=$IS_CODESPACES, wsl=$IS_WSL)."

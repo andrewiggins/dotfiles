@@ -113,7 +113,8 @@ for test in "${tests[@]}"; do
 			run_test "dotfiles-test-full-${timestamp}"
 			;;
 		codespaces)
-			run_test "dotfiles-test-codespaces-${timestamp}" -e CODESPACES=true
+			run_test "dotfiles-test-codespaces-${timestamp}" -e CODESPACES=true \
+				-e GIT_CONFIG_SYSTEM=/dotfiles/tests/linux/codespaces.gitconfig
 			;;
 	esac
 done

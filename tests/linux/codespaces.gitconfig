@@ -1,0 +1,10 @@
+# Synthetic Codespaces system config. No real signing/credential executables.
+[user]
+	name = Managed Codespaces User
+	email = 123+example@users.noreply.github.com
+[gpg]
+	program = managed-signing-program
+[commit]
+	gpgsign = true
+[credential]
+	helper = managed-credential-helper

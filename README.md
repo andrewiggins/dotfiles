@@ -77,6 +77,13 @@ For private or machine-specific shell config, create `~/.extra` — it's sourced
 
 To change git email per machine, either edit `scripts/configure-git.sh` directly or set `GIT_EMAIL=…` in your environment before running.
 
+In Codespaces, setup leaves Git identity unchanged so GitHub's system-provided
+identity and managed commit signing remain in effect on fresh installations.
+An explicit nonempty `GIT_EMAIL` is still honored, but warns because overriding
+that identity may break managed signing. If system identity is missing, setup
+warns instead of supplying a personal default. Existing global identity values
+are not removed automatically; affected existing Codespaces need manual cleanup.
+
 For the historical `personal` vs `work` machine_type distinction (and how to reintroduce it if needed), see [`docs/MACHINE_TYPES.md`](docs/MACHINE_TYPES.md).
 
 ## Updating
