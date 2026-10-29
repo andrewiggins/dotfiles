@@ -8,8 +8,17 @@ if [ "${SKIP_PACKAGES:-0}" = "1" ]; then
 	exit 0
 fi
 
-export VOLTA_HOME="${VOLTA_HOME:-$HOME/.volta}"
-export PATH="$VOLTA_HOME/bin:$HOME/.local/bin:$PATH"
+case "$(uname -s)" in
+	MINGW*|MSYS*|CYGWIN*)
+		# Windows Volta lives in %LOCALAPPDATA%\Volta and is already on PATH;
+		# pointing VOLTA_HOME at ~/.volta breaks its node/npm/npx shims.
+		;;
+	*)
+		export VOLTA_HOME="${VOLTA_HOME:-$HOME/.volta}"
+		export PATH="$VOLTA_HOME/bin:$PATH"
+		;;
+esac
+export PATH="$HOME/.local/bin:$PATH"
 
 install_npm_cli() {
 	local command_name="$1"
