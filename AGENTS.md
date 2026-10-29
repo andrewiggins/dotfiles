@@ -31,7 +31,7 @@ dotfiles/
 ├── scripts/
 │   ├── configure-git.sh       # `git config --global` calls (all platforms)
 │   ├── configure-claude.sh    # Claude Code settings.json setup (all platforms)
-│   ├── install-ai-agents.sh   # Claude/Codex/Pi Coding Agent install (all platforms; Git Bash on Windows)
+│   ├── install-ai-agents.sh   # Claude/Codex/Pi Coding Agent + skills.sh skills install (all platforms; Git Bash on Windows)
 │   ├── install-packages-codespaces.sh
 │   ├── install-packages-macos.sh
 │   ├── install-packages-linux.sh

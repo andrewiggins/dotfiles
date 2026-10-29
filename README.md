@@ -58,7 +58,7 @@ The Windows installer installs Podman Desktop, but leaves Podman machine setup t
 2. Symlinks every file under `home/` into `$HOME`, skipping macOS-only files (`.zshrc`, `.zprofile`) on other platforms.
 3. Runs the appropriate `scripts/install-packages-*.sh` for the detected OS.
 4. Runs `scripts/configure-git.sh`, which is just a list of `git config --global …` calls — idempotent and individually editable per-machine.
-5. Installs terminal AI agents (`claude`, `codex`, `pi`) using the platform-appropriate installers.
+5. Installs terminal AI agents (`claude`, `codex`, `pi`) using the platform-appropriate installers, plus shared agent skills (`skill-creator` and `frontend-design` from `anthropics/skills`; the security skills from `openai/skills`) into `~/.agents/skills` via the [skills.sh](https://skills.sh) CLI.
 6. Runs `scripts/configure-claude.sh` to keep Claude Code's statusline wired to the repo-managed script.
 
 Podman behavior by platform:
@@ -119,6 +119,7 @@ different dates/machines may resolve differently.
 | Linux delta direct download | Latest GitHub release for the detected architecture |
 | Codex / Pi npm installs | Registry default tag for `@openai/codex` / `@mariozechner/pi-coding-agent`; no version specified |
 | Claude native installer | Upstream installer's default release/channel |
+| Agent skills | `skills@1.7.4` CLI; skill contents from each repo's default branch; installed skills are not updated on re-run |
 | Node / pnpm via Volta | Volta's defaults on every package-setup run; existing PATH commands do not suppress Volta installation |
 | Rustup, Starship, Volta, Homebrew bootstrappers | Upstream bootstrapper defaults (Starship on macOS/Windows uses the package manager) |
 | Windows Nerd Fonts | Current upstream branch; no commit/version pin |
