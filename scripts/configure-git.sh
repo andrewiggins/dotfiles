@@ -62,6 +62,7 @@ git config --global alias.last-change 'log --all -1 --'
 git config --global alias.autofetch-branch '!BR=$(git rev-parse --abbrev-ref HEAD) && git remote set-branches --add origin $BR && git fetch origin $BR && git branch -u origin/$BR'
 git config --global alias.origin 'remote show origin'
 git config --global alias.up 'remote update origin --prune'
+git config --global alias.wls 'worktree list'
 
 # --- delta pager + VS Code merge tool (skip on Codespaces) ------------------
 if [ "$IS_CODESPACES" != "1" ]; then
