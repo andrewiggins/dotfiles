@@ -31,8 +31,7 @@ dotfiles/
 ├── scripts/
 │   ├── configure-git.sh       # `git config --global` calls (all platforms)
 │   ├── configure-claude.sh    # Claude Code settings.json setup (all platforms)
-│   ├── install-ai-agents.sh   # Claude/Codex/Pi Coding Agent install (Unix/macOS/WSL/Codespaces)
-│   ├── install-ai-agents.ps1  # Claude/Codex/Pi Coding Agent install (Windows)
+│   ├── install-ai-agents.sh   # Claude/Codex/Pi Coding Agent install (all platforms; Git Bash on Windows)
 │   ├── install-packages-codespaces.sh
 │   ├── install-packages-macos.sh
 │   ├── install-packages-linux.sh
@@ -47,13 +46,13 @@ dotfiles/
     └── MACHINE_TYPES.md       # Historical work/personal split + how to revive
 ```
 
-`install.sh` is the Unix/macOS/WSL/Codespaces entry point; `install.ps1` handles native Windows. Source dotfiles live under `home/` and are symlinked into `$HOME` at install time. Shared setup logic lives in `scripts/`, with platform-specific installers such as `install-packages-linux.sh`, `install-packages-windows.ps1`, and the cross-platform AI-agent install scripts. Integration and regression checks live in `tests/`. Background notes belong in `docs/`.
+`install.sh` is the Unix/macOS/WSL/Codespaces entry point; `install.ps1` handles native Windows. Source dotfiles live under `home/` and are symlinked into `$HOME` at install time. Shared setup logic lives in `scripts/`, with platform-specific installers such as `install-packages-linux.sh`, `install-packages-windows.ps1`, and the cross-platform `install-ai-agents.sh`. Integration and regression checks live in `tests/`. Background notes belong in `docs/`.
 
 ## Key Patterns
 
 - **Runtime detection, not templating**: `install.sh` reads `uname -s`, `$CODESPACES`, and WSL signals (`WSL_DISTRO_NAME`, `WSL_INTEROP`, `/proc/version`) and passes the results as env vars to downstream scripts. There is no template engine in the loop.
 - **Idempotent git config**: `scripts/configure-git.sh` is a list of `git config --global …` calls. Re-running rewrites identical values; individual lines can be commented out per machine. Modeled on the older `andrewiggins/setup` repo's pattern.
-- **Git Bash for shared config on Windows**: `install.ps1` calls shared bash scripts (`configure-git.sh`, `configure-claude.sh`) via Git Bash instead of maintaining duplicate PowerShell versions. Git Bash is found by resolving `bash.exe` relative to `git.exe`'s install directory to avoid accidentally using WSL's bash.
+- **Git Bash for shared config on Windows**: `install.ps1` calls shared bash scripts (`configure-git.sh`, `install-ai-agents.sh`, `configure-claude.sh`) via Git Bash instead of maintaining duplicate PowerShell versions. Git Bash is found by resolving `bash.exe` relative to `git.exe`'s install directory to avoid accidentally using WSL's bash.
 - **`~/.extra` escape hatch**: Both `.bashrc` and `.zshrc` source `~/.extra` if it exists, for private or machine-specific config not tracked in git.
 - **Symlinks, not copies**: Edits to files in `~/.bashrc` etc. flow back to the repo. On Windows this requires Developer Mode.
 - **`SKIP_PACKAGES=1`** is honored by every package install script, so CI and test runs can exercise the full installer without actually invoking `brew`/`apt`/`winget`.

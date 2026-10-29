@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Install AI coding agents for Unix-like environments.
+# Install AI coding agents for Unix-like environments and Git Bash on Windows.
 # Honors SKIP_PACKAGES=1 for CI dry-runs.
 set -euo pipefail
 
@@ -33,7 +33,19 @@ if command -v claude >/dev/null 2>&1; then
 	echo "claude already installed"
 else
 	echo "Installing Claude Code via native installer..."
-	curl -fsSL https://claude.ai/install.sh | bash
+	case "$(uname -s)" in
+		MINGW*|MSYS*|CYGWIN*)
+			# Claude's install.sh rejects Git Bash, so use the PowerShell installer.
+			# Unset PSModulePath so Windows PowerShell doesn't load PowerShell 7's
+			# modules when install.ps1 was launched from pwsh.
+			# shellcheck disable=SC2016 # PowerShell expressions, not bash
+			env -u PSModulePath powershell.exe -NoProfile -ExecutionPolicy Bypass -Command \
+				'$ErrorActionPreference = "Stop"; & ([scriptblock]::Create((Invoke-RestMethod -Uri "https://claude.ai/install.ps1")))'
+			;;
+		*)
+			curl -fsSL https://claude.ai/install.sh | bash
+			;;
+	esac
 fi
 
 install_npm_cli codex @openai/codex

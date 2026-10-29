@@ -135,7 +135,7 @@ Write-Host "==> Installing AI agents"
 if ($DryRun) {
 	Write-Host "    (dry-run, skipping AI agent install)"
 } else {
-	& (Join-Path $RepoDir "scripts\install-ai-agents.ps1")
+	Invoke-BashScript (Join-Path $RepoDir "scripts/install-ai-agents.sh")
 }
 
 # --- 6. Configure Claude Code -----------------------------------------------
