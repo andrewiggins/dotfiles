@@ -119,7 +119,7 @@ different dates/machines may resolve differently.
 | Linux delta direct download | Latest GitHub release for the detected architecture |
 | Codex / Pi npm installs | Registry default tag for `@openai/codex` / `@mariozechner/pi-coding-agent`; no version specified |
 | Claude native installer | Upstream installer's default release/channel |
-| Agent skills | `skills@1.7.4` CLI; skill contents from each repo's default branch; installed skills are not updated on re-run |
+| Agent skills | `skills@1.7.4` CLI; skill contents pinned to the commit SHAs in `scripts/install-ai-agents.sh`; installed skills are not updated on re-run, so after bumping a SHA, remove the skill (`npx skills remove -g <skill>`) and re-run |
 | Node / pnpm via Volta | Volta's defaults on every package-setup run; existing PATH commands do not suppress Volta installation |
 | Rustup, Starship, Volta, Homebrew bootstrappers | Upstream bootstrapper defaults (Starship on macOS/Windows uses the package manager) |
 | Windows Nerd Fonts | Current upstream branch; no commit/version pin |
